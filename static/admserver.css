@@ -1,0 +1,56 @@
+body {background-color: #efefef;}
+
+ul.navbar { 
+	margin: 0; 
+	padding: 5px; 
+	list-style-type: none; 
+	text-align: center; 
+	background-color: #000; 
+	} 
+ 
+ul.navbar li.navbar {  
+	display: inline; 
+	} 
+ 
+ul.navbar li.navbar a.navbar { 
+	text-decoration: none; 
+	padding: .2em 1em; 
+	color: #fff; 
+	background-color: #000; 
+	} 
+	
+ul.navbar li.navbar a:hover { 
+	color: #000; 
+	background-color: #fff; 
+	} 
+
+
+table {
+	width: 100%;
+}
+
+th {
+	border-width: 1px;
+	border-style: dotted;
+	border-color: black;
+	text-align: left;
+	vertical-align: top;
+}
+
+td {
+	border-width: 1px;
+	border-style: dotted;
+	border-color: black;
+	text-align: left;
+	vertical-align: top;
+}
+
+textarea {
+	width: 100%;
+	height: 100%;
+}
+
+div.login input,
+div.login  {
+	text-align: center;
+}

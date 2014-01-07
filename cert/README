@@ -1,0 +1,6 @@
+There are many site explaning how to create a:
+abcd.crt and abcd.key file foe use with ssl /
+https site. 
+
+Create them and call them: self.crt and self.key
+and put them in this folder.

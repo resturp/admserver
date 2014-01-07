@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+     <meta charset="UTF-8">
+     <title>ADM solution submission server</title>
+     <link href="static/admserver.css" rel="Stylesheet" type="text/css">
+  </head> 
+
+  <body>
+      <ul class="navbar"> 
+	    <li class="navbar"><a href="/assignment" class="navbar">Assignment</a></li>
+		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
+      </ul>
+    
+    <TABLE>
+    <TR><TH width="10%">Daedline</TH><TH width="45%">Description</TH><TH width="45%">&nbsp</TH></TR>
+    {% for assignment in items["assignments"] %}
+    <TR><TD>
+    <pre>{{ (assignment[1] - datetime.datetime.now().date()).days }}<BR />Days left
+    </pre></TD><TD>
+    <form action="/admin" method="post">
+    <input type="hidden" name="assignment" value="{{ assignment[2] }}">
+    <input type="hidden" name="isnew" value="False">
+    <input type="date" name="deadline" value="{{ assignment[1] }}"><BR />
+    <input type="text" name="title" value="{{ assignment[2] }}"  disabled><BR />
+	<textarea class="lined" cols="120" rows="4" name="description">{{ assignment[3] }}</textarea><BR />
+    <input type="submit" value="Update assignment">
+	{% raw xsrf_form_html() %}    
+    </form>    
+    </TD><TD>Manage tasks: <a href="/admin/{{ assignment[0] }}">{{ assignment[2] }}</a><BR />
+    <form action="/deleteassignment" method="post">
+    <input type="hidden" name="assignment" value="{{ assignment[2] }}">
+    <input type="submit" value="Delete Assignment">
+	{% raw xsrf_form_html() %} 
+	</form>
+    </TD></TR>
+    {% end %}
+
+    <TR><TD>
+    <pre>*new assignment*
+    </pre></TD><TD>
+    <form action="/admin" method="post">
+    <input type="hidden" name="assignment" value="new">
+    <input type="hidden" name="isnew" value="True">
+    <input type="date" name="deadline" value="yyyy-mm-dd"><BR />
+    <input type="text" name="title" value="short descriptive title"><BR />
+	<textarea class="lined" cols="120" rows="4" name="description">Detailed introduction of the assignment</textarea><BR />
+    <input type="submit" value="Create assignment">
+	{% raw xsrf_form_html() %}    
+    </form>    
+    </TD><TD>&nbsp</TD></TR>
+
+
+
+    </TABLE>
+    </div>
+    <script>
+	    $(function() {
+            $(".lined").linedtextarea( {selectedLine: 1});
+        });
+    </script>
+  </body>
+</html>

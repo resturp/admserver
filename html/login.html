@@ -1,0 +1,19 @@
+<html>
+  <head>
+     <meta charset="UTF-8">
+     <title>ADM solution submission server</title>
+     <link href="static/admserver.css" rel="Stylesheet" type="text/css">
+  </head> 
+  <body>
+  	<div class="login">
+    <H1>ADM server</H1>
+    <p>ADM assignment and solution submission server</p>
+    <form action="/login" method="post">
+	  E-mail:<br> <input type="text" name="email"><br />
+	  Password:<br> <input type="password" name="password"><br />
+	  <input type="submit" value="Sign in"><br />
+	  {% raw xsrf_form_html() %}
+    </form>
+    </div>
+  </body>
+</html>

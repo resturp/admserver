@@ -1,0 +1,83 @@
+ADM solution submission server 0.2
+==================================
+
+Copyright (c) 2014 Thomas Boose 
+thomas at boose dot nl.
+All rights reserved.
+
+License information
+-------------------
+
+See the file "LICENSE" for information on the license of this
+software, terms & conditions for usage, and a DISCLAIMER OF ALL
+WARRANTIES.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+What's new in this release?
+---------------------------
+
+The testrunner is updated so it runs each test in a separate 
+process for a maximum of 2 seconds. The documentation has had 
+an extensive update 
+
+
+If you don't read instructions
+------------------------------
+
+Congratulations on getting this far. :-)
+
+To start playing, install the ipython-nodebook, the postgresql
+database server with python-psycopg. 
+
+unpack the source tarbal, create a database and run the 
+sql-create script from the sql folder.
+
+cp the misc/config.py file to '.' the server root directory, 
+ajust the config.py file to enter your database credentials and 
+finaly run ``python admserver.py`` from the root directory where
+you have unpacked the sources.
+
+There are many site explaning how to create a:
+abcd.crt and abcd.key file for use with ssl /
+https site. 
+
+Create them and call them: self.crt and self.key
+and put them in the cert folder.
+
+What is the ADM server
+----------------------
+
+The ADM-server is a webbased tool for programming task formulation,
+task assignment, solution submission and grading that will provide 
+computer science teachers with a platform for these tasks.
+
+At this stage the adm-server provides a very primitive but working 
+interface for students and teachers. the main value is the solution 
+submission and feedback based on the docstring of tests.
+
+To find out more about this adm-server software, point your
+browser to http://admserver.frii.nl/.
+
+Documentation
+-------------
+
+Besides this README all documentation is in the Python source files
+and on the http://admserver.frii.nl/ website.
+
+Web sites
+---------
+
+New releases, new features and project progress can be discussed at 
+the website: http://admserver.frii.nl/ Come visit us!
