@@ -22,6 +22,7 @@
 """
 
 import tornado.web
+import tornado.gen
 import models
 import hashlib
 
@@ -58,7 +59,7 @@ class AssignmentHandler(BaseHandler):
         items["isadmin"] = curuser.is_admin()
         self.render('html/assignment.html', title="ADM server", items=items)
 
-    @tornado.web.authenticated        
+    @tornado.web.authenticated    
     def post(self):
         """Instantiate a current user instance of the User model and 
         store the posted values as a user submission of a solution.
@@ -67,11 +68,17 @@ class AssignmentHandler(BaseHandler):
                          silution stored in the database
         :done:  redirect to the assignment page at the specific task? 
         """
+        print self.get_argument("code", "", False)
         curuser = models.User(self)
-        curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False))
-        m = hashlib.md5()
-        m.update(self.get_argument("assignment","",True))
-        self.redirect("/assignment/" + m.hexdigest() + "#task" + self.get_argument("task","",True))
+        resultset = ''
+        for result in curuser.run_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False)):
+            resultset = resultset + result
+            self.write(result)
+            self.flush(False)
+        self.flush(True)        
+        curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset)
+        ##I replaced the redirect with clientside code We only want to return 
+        ##The returnvalues of the tests one by one
     
 class EntryHandler(BaseHandler):
     """Handle GET requests to /assignment/<hash>.

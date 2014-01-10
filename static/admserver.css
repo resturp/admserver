@@ -7,7 +7,12 @@ ul.navbar {
 	text-align: center; 
 	background-color: #000; 
 	} 
- 
+
+ul.tabs {
+	text-align: left; 
+}
+
+
 ul.navbar li.navbar {  
 	display: inline; 
 	} 

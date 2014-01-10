@@ -1,5 +1,5 @@
-ADM solution submission server 0.2
-==================================
+ADM solution submission server 0.2.1
+====================================
 
 Copyright (c) 2014 Thomas Boose 
 thomas at boose dot nl.
@@ -32,6 +32,8 @@ The testrunner is updated so it runs each test in a separate
 process for a maximum of 2 seconds. The documentation has had 
 an extensive update 
 
+Student submissions are sent to the server asynchonious and the results
+"flow" into the results box. 
 
 If you don't read instructions
 ------------------------------

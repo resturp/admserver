@@ -83,16 +83,21 @@ class User(object):
         query = "UPDATE admtask set assignment = %s, tasknr = %s where assignment = %s and tasknr = %s"
         Pgdb(self).execute(query,(newassign ,newtasknr,assignment,tasknr))
     
-    def store_solution(self, title,task, code):
+    def run_solution(self, title, task, code):
         query = "Select testsuite from admtask where assignment = %s and tasknr = %s"
         data = (title, task)
-        tests = Pgdb(self).get_record(query, data)[0]       
-        resultslist = testRunner.test(code, tests)
-        results = ''
-        for result in resultslist:
-            results = results + '\n' + result 
+        tests = Pgdb(self).get_record(query, data)[0] 
+              
+        for result in testRunner.test(code, tests):
+            if isinstance(result, str):
+                yield result + '\n'
+            else:
+                for boodschap in result: 
+                    yield boodschap + '\n'
+
+    def store_solution(self, title, task, code, resultset):
         query = "Insert into admsolution (task,email,submissionstamp,code, results) values (%s, %s, now(), %s, %s)"
-        data = (title + task, self.email ,code, results)
+        data = (title + task, self.email ,code, resultset)
         Pgdb(self).execute(query,data)
 
     def store_tests(self, title,task, description, tests):

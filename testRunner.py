@@ -79,11 +79,11 @@ def run{% testclassname %}():
                 time.sleep(0.1)
                 if myQ.empty():
                     myProcess.terminate()
-                    results.append("test " + name + ": took more then 2 seconds to execute \\n" + attr.__doc__.replace('\\n','\\n    '))
+                    
+                    yield "test " + name + ": took more then 2 seconds to execute \\n" + attr.__doc__.replace('\\n','\\n    ')
                 else:
-                    results.append(myQ.get(False) + " (" + str(count * 50) + "ms)") 
-            
-    return results'''
+                    yield myQ.get(False) #+ " (" + str(count * 50) + "ms)") 
+'''
 
 
 def test(source, tests):
@@ -140,7 +140,8 @@ def test(source, tests):
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 
         ns = {}
-        exec code_local in ns
-        return ns['run' + testclassname]()
+        exec code_local in ns       
+        for result in  ns['run' + testclassname]():
+            yield result
     except SyntaxError, e:
-        return traceback.format_exception_only(SyntaxError, e)
+        yield traceback.format_exception_only(SyntaxError, e)
