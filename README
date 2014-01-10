@@ -51,8 +51,8 @@ ajust the config.py file to enter your database credentials and
 finaly run ``python admserver.py`` from the root directory where
 you have unpacked the sources.
 
-There are many site explaning how to create a:
-abcd.crt and abcd.key file for use with ssl /
+There are many sites explaning how to create a:
+foo.crt and foo.key file for use with ssl /
 https site. 
 
 Create them and call them: self.crt and self.key
