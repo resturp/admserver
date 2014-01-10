@@ -8,6 +8,10 @@ ul.navbar {
 	background-color: #000; 
 	} 
 
+ul.menu {
+	text-align: left;
+}
+
 ul.tabs {
 	text-align: left; 
 }
