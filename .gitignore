@@ -1,0 +1,8 @@
+#files to ignore
+################
+
+*.pyc
+*.crt
+*.key
+config.py
+*~
