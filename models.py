@@ -81,7 +81,7 @@ class User(object):
         query = "SELECT count(tasknr)+1 from admtask where assignment = %s"
         newtasknr = Pgdb(self).get_record(query, (newassign ,))[0]
         query = "UPDATE admtask set assignment = %s, tasknr = %s where assignment = %s and tasknr = %s"
-        Pgdb(self).execute(query,(newassign ,newtasknr,assignment,tasknr))
+        return Pgdb(self).execute(query,(newassign ,newtasknr,assignment,tasknr))
     
     def run_solution(self, title, task, code):
         query = "Select testsuite from admtask where assignment = %s and tasknr = %s"
@@ -98,7 +98,7 @@ class User(object):
     def store_solution(self, title, task, code, resultset):
         query = "Insert into admsolution (task,email,submissionstamp,code, results) values (%s, %s, now(), %s, %s)"
         data = (title + task, self.email ,code, resultset)
-        Pgdb(self).execute(query,data)
+        return Pgdb(self).execute(query,data)
 
     def store_tests(self, title,task, description, tests):
         if not task.isdigit():
@@ -107,26 +107,26 @@ class User(object):
             task = Pgdb(self).get_record(query,data)[0]            
             query = "INSERT into admtask (assignment, tasknr, description,testsuite) values (%s, %s, %s, %s)"
             data = (title, task, description,tests)
-            Pgdb(self).execute(query,data)
+            return Pgdb(self).execute(query,data)
         else:
             query = "select count(assignment) from admtask where assignment = %s and tasknr = %s"
             data = (title, task)
             query = "UPDATE admtask set description = %s, testsuite = %s where assignment = %s and tasknr = %s"
             data = (description,tests, title, task)
-            Pgdb(self).execute(query,data)
+            return Pgdb(self).execute(query,data)
         
     def store_assignment(self,title,deadline,description, isnew):
         if isnew :           
             query = "INSERT into admassignment (deadline, title, description) values (%s, %s, %s)"
             data = (deadline, title, description)
-            Pgdb(self).execute(query,data)
+            return Pgdb(self).execute(query,data)
         else:
             query = "UPDATE admassignment set description = %s, deadline = %s where title = %s"
             data = (description,deadline, title)
-            Pgdb(self).execute(query,data)
+            return Pgdb(self).execute(query,data)
         
     def delete_assignment(self, assignment):
         newassign = pgdb_ripsymbol + assignment
         query = "UPDATE admassignment set title = %s where title = %s"
-        Pgdb(self).execute(query,(newassign, assignment))
+        return Pgdb(self).execute(query,(newassign, assignment))
     

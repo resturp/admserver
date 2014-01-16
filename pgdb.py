@@ -24,10 +24,12 @@ import psycopg2
 from config import *
 
 
+
 class Pgdb(object):
     """ Singleton class for handling all requests to the database.
     
     """
+    lastError = None
     _instance = None
     def __new__(cls, *args, **kwargs):
         """ overwrite the __new__ method to return the single instanse.
@@ -68,8 +70,13 @@ class Pgdb(object):
         self.conn.close()
         self.conn = psycopg2.connect(database=pgdb_database, user=pgdb_user, password=pgdb_password, host=pgdb_server)
         self.cur = self.conn.cursor()
-        self.cur.execute(query,data)
-        self.conn.commit()
+        try:
+            self.cur.execute(query,data)
+            self.conn.commit()
+            return True
+        except psycopg2.DatabaseError as e:
+            return e
+        
         
     def get_record(self, query, data=None):
         """ Pass a query to the database and return only the first record. 

@@ -22,10 +22,9 @@
 """
 
 import tornado.web
-import tornado.gen
 import models
 import hashlib
-
+import traceback
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -75,8 +74,12 @@ class AssignmentHandler(BaseHandler):
             resultset = resultset + result
             self.write(result)
             self.flush(False)
+        
+        e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset)
+        if isinstance(e,Exception):
+            self.write("Error storing solution\n" + e)
         self.flush(True)        
-        curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset)
+            
         ##I replaced the redirect with clientside code We only want to return 
         ##The returnvalues of the tests one by one
     
@@ -138,8 +141,12 @@ class AdminHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            curuser.store_assignment(self.get_argument("title","",True),self.get_argument("deadline","",True),self.get_argument("description", "", False), self.get_argument("isnew","",True).lower() == "true" )
-            self.redirect("/admin")
+            e = curuser.store_assignment(self.get_argument("title","",True),self.get_argument("deadline","",True),self.get_argument("description", "", False), self.get_argument("isnew","",True).lower() == "true" )
+            if isinstance(e,Exception):
+                self.write("<pre>Error storing assignment\n" + str(e) + "</pre>")
+                self.flush(True)
+            else:
+                self.redirect("/admin")
 
             
 class AdminEntryHandler(BaseHandler):
@@ -179,8 +186,12 @@ class AdminEntryHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False))
-            self.redirect("/admin/"  + md5Hash + "#task" + self.get_argument("task","",True))
+            e = curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False))
+            if isinstance(e,Exception):
+                self.write("<pre>Error storing test\n" + e + "</pre>")
+                self.flush(True)
+            else:
+                self.redirect("/admin/"  + md5Hash + "#task" + self.get_argument("task","",True))
 
 class DeleteTaskHandler(BaseHandler):
     """Handle POST requests to /deletetask
@@ -201,10 +212,14 @@ class DeleteTaskHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            curuser.delete_task(self.get_argument("assignment","",True),self.get_argument("task","",True))
-            m = hashlib.md5()
-            m.update(self.get_argument("assignment","",True))
-            self.redirect("/admin/" + m.hexdigest())
+            e = curuser.delete_task(self.get_argument("assignment","",True),self.get_argument("task","",True))
+            if isinstance(e,Exception):
+                self.write("<pre>Error deleting task\n" + e + "</pre>")
+                self.flush(True)
+            else:
+                m = hashlib.md5()
+                m.update(self.get_argument("assignment","",True))
+                self.redirect("/admin/" + m.hexdigest())
 
 class DeleteAssignmentHandler(BaseHandler):
     """Handle POST requests to /deletetask
@@ -225,8 +240,10 @@ class DeleteAssignmentHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            curuser.delete_assignment(self.get_argument("assignment","",True))
-            self.redirect("/admin")
+            e = curuser.delete_assignment(self.get_argument("assignment","",True))
+            if isinstance(e,Exception):
+                self.write("<pre>Error deleting assignment\n" + e + "</pre>")
+                self.flush(True)
+            else:
+                self.redirect("/admin")
 
-
-DeleteAssignmentHandler

@@ -12,7 +12,7 @@
      <link href="/static/admserver.css" rel="Stylesheet" type="text/css" />
   </head> 
 
-  <body onload="showTask('task1');">
+  <body onload="initPage();">
 	<ul class="navbar"> 
 		<li class="navbar"><a href="/assignment" class="navbar active">Assignment</a></li>
 		{% if items["isadmin"] %}
@@ -20,9 +20,9 @@
 		{% end %}
 		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
 	</ul>
-    <TABLE>
-	    <TR id="header"><TH width="10%">Daedline</TH><TH width="90%">Description</TH></TR>
-	    <TR>
+    <TABLE id="tableAssignment">
+	    <TR id="header"><TH width="10%">Daedline</TH><TH width="90%">Description ....</TH></TR>
+	    <TR id="assignment" >
 	    	<TD>
 	    		{{ (items["assignment"][1] - datetime.datetime.now().date()).days }}<BR />Days left
 	    	</TD>
@@ -33,10 +33,10 @@
 	    </TR>
     </TABLE>
     
-    <ul class="navbar tabs"> 
+    <ul id="listTasks" class="navbar tabs"> 
     {% for task in items["tasks"] %}
 	    <li class="navbar">
-	    <a class="navbar" id="task{{ task[1] }}" onClick="showTask('task{{ task[1] }}');">task{{ task[1] }}</a>
+	    <a class="navbar" id="task{{ task[1] }}" onClick="showTask('task{{ task[1] }}')">task{{ task[1] }}</a>
 	    </li>
     {% end %}
     </ul>

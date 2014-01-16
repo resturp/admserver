@@ -65,6 +65,7 @@ class {% testclassname %}():
 def run{% testclassname %}():
     myTest = {% testclassname %}()
     results = []
+    noresults = True
     for name in dir(myTest):
         if not name[:1] == '_': 
             attr = getattr(myTest,name)
@@ -81,8 +82,12 @@ def run{% testclassname %}():
                     myProcess.terminate()
                     
                     yield "test " + name + ": took more then 2 seconds to execute \\n" + attr.__doc__.replace('\\n','\\n    ')
+                    noresults = False
                 else:
                     yield myQ.get(False) #+ " (" + str(count * 50) + "ms)") 
+                    noresults = False
+    if noresults:
+        yield "no results"
 '''
 
 
@@ -140,8 +145,14 @@ def test(source, tests):
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 
         ns = {}
-        exec code_local in ns       
+        exec code_local in ns    
+        noreturn = True   
         for result in  ns['run' + testclassname]():
             yield result
-    except SyntaxError, e:
-        yield traceback.format_exception_only(SyntaxError, e)
+            noreturn = False
+        if noreturn:
+            yield "no results."
+    except SyntaxError as e:
+        yield traceback.format_exception_only(SyntaxError , e)
+    except NameError as e:
+        yield traceback.format_exception_only(NameError , e)

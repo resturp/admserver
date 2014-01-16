@@ -1,3 +1,24 @@
+var timeout = null;
+
+function initPage() {
+	showTask('task1');
+    
+	mainElem = document.getElementById("tableAssignment");
+	hideDetail(mainElem.rows[1],0);
+	mainElem.onmouseover = function() {showDetail(mainElem.rows[1],400);};
+	mainElem.onmouseout = function() {hideDetail(mainElem.rows[1],200);};	
+}
+
+function showDetail(elem, ms) {
+	clearTimeout(timeout);
+	timeout = setTimeout(function() {elem.style.display = '';}, ms);
+}
+
+function hideDetail(elem, ms) {
+	clearTimeout(timeout);
+	timeout = setTimeout(function() {elem.style.display = 'none';}, ms);
+}
+
 function showTask(taskName) {
     var table = document.getElementById("myTable");
     for (var i = 0, row; row = table.rows[i]; i++) {
@@ -42,14 +63,15 @@ function processSubmission(task) {
 	
 	http.onreadystatechange = function () {
 		
-		if(http.readyState == 3 && http.status == 200) {
-			document.getElementById("Response" + task).innerHTML = "Processing .....\n\n" + http.responseText;
-		}
-		
-		if(http.readyState == 4 && http.status == 200) {
-			document.getElementById("Response" + task).innerHTML = "Done .....\n\n" + http.responseText;
-		}
-
+		if (http.status == 200) {
+			switch(http.readyState) {
+			case 3:
+				document.getElementById("Response" + task).innerHTML = "Processing .....\n\n" + http.responseText;
+				break;
+			case 4:
+				document.getElementById("Response" + task).innerHTML = "Done .....\n\n" + http.responseText;
+			}
+		} 
 	}
 
 	http.send(params);
