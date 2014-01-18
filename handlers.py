@@ -63,22 +63,28 @@ class AssignmentHandler(BaseHandler):
         """Instantiate a current user instance of the User model and 
         store the posted values as a user submission of a solution.
         
-        :postcondition:  a redirection to the /assignment/<hash>#<task> page and an posted
-                         silution stored in the database
-        :done:  redirect to the assignment page at the specific task? 
+        :postcondition:  The solution is posted and the returnvalues indicate 
+                         success or failure of the submission
         """
-        print self.get_argument("code", "", False)
         curuser = models.User(self)
-        resultset = ''
-        for result in curuser.run_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False)):
-            resultset = resultset + result
-            self.write(result)
-            self.flush(False)
-        
-        e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset)
-        if isinstance(e,Exception):
-            self.write("Error storing solution\n" + e)
-        self.flush(True)        
+        if curuser.can_attempt(self.get_argument("assignment","",True) + self.get_argument("task","",True)):
+            resultset = ''
+            for result in curuser.run_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False)):
+                resultset = resultset + result
+                self.write(result)
+                self.flush(False)
+            
+            e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset)
+            if isinstance(e,Exception):
+                self.write("Error storing solution\n" + e)
+            self.flush(True)  
+        else:
+            self.write("""You have found a way to post a submission 
+            after submitting the maximum number of times. 
+            This submission will not be accepted.
+            This incident will be reported.""")
+            self.flush(True)
+            #report incident      
             
         ##I replaced the redirect with clientside code We only want to return 
         ##The returnvalues of the tests one by one
@@ -141,7 +147,7 @@ class AdminHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            e = curuser.store_assignment(self.get_argument("title","",True),self.get_argument("deadline","",True),self.get_argument("description", "", False), self.get_argument("isnew","",True).lower() == "true" )
+            e = curuser.store_assignment(self.get_argument("title","",True),self.get_argument("deadline","",True),self.get_argument("description", "", False), self.get_argument("course","",True), self.get_argument("isnew","",True).lower() == "true" )
             if isinstance(e,Exception):
                 self.write("<pre>Error storing assignment\n" + str(e) + "</pre>")
                 self.flush(True)
@@ -186,7 +192,7 @@ class AdminEntryHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            e = curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False))
+            e = curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False), self.get_argument("attempts", "", False) )
             if isinstance(e,Exception):
                 self.write("<pre>Error storing test\n" + e + "</pre>")
                 self.flush(True)

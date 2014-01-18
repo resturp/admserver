@@ -21,12 +21,21 @@ function hideDetail(elem, ms) {
 
 function showTask(taskName) {
     var table = document.getElementById("myTable");
-    for (var i = 0, row; row = table.rows[i]; i++) {
+	$(":input").attr('disabled', false);
+	for (var i = 0, row; row = table.rows[i]; i++) {
         if (row.id.substring(0,4) == "task") {
+        	
             if (row.id == taskName) {
             	row.style.display = '';
                 document.getElementById("task"+i).style.color = "#000";
                 document.getElementById("task"+i).style.background = "#efefef";
+                
+                if (document.getElementById("task"+i+"attempts").value != 'inf'){
+                	if (parseInt(document.getElementById("task"+i+"attempts").value) < 1) {
+                		$(":input").attr('disabled', true);
+                	}
+                } 
+                
             } else {
             	row.style.display = 'none';
                 document.getElementById("task"+i).style.color = "#fff";           
@@ -75,8 +84,18 @@ function processSubmission(task) {
 	}
 
 	http.send(params);
+	
 
+	
+    if (document.getElementById("task" + task + "attempts").value != 'inf'){
+    	newval = parseInt(document.getElementById("task" + task + "attempts").value) - 1;
+    	document.getElementById("attempts" + task).innerHTML = newval;
+    	document.getElementById("task" + task + "attempts").value = newval;
+    	showTask("task" + task);
+    }
+    
 
+	
 }
 
 

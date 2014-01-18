@@ -22,6 +22,7 @@ CREATE TABLE admassignment
   title character varying(255) NOT NULL,
   description text,
   image path,
+  course character varying(255),
   CONSTRAINT "dmassignment-pkey" PRIMARY KEY (title )
 )
 WITH (
@@ -47,6 +48,7 @@ CREATE TABLE admtask
   tasknr integer NOT NULL,
   description text,
   testsuite text,
+  attempts integer NOT NULL DEFAULT 0,
   CONSTRAINT "task-key" PRIMARY KEY (assignment , tasknr )
 )
 WITH (
@@ -58,20 +60,36 @@ CREATE TABLE admuser
   email character varying(255) NOT NULL,
   password character varying(255),
   isadmin boolean NOT NULL DEFAULT false,
+  courses character varying(255),
   CONSTRAINT pkey PRIMARY KEY (email )
 )
 WITH (
   OIDS=FALSE
 );
 
-INSERT INTO admuser(email, password, isadmin)
-    VALUES ('admin@site.local','admin', TRUE),('user@site.local','user',FALSE);
 
-INSERT INTO admassignment(deadline, title, description)
-    VALUES ('02/15/2014', 'Example assingment', 'This is a simple example assignment to show the ADM server funtionality');
+INSERT INTO admuser(email, password, isadmin, course)
+    VALUES ('admin@site.local','admin', TRUE, 'first'),('user@site.local','user',FALSE, 'first');
+
+INSERT INTO admassignment(deadline, title, description, course)
+    VALUES ('02/15/2014', 'Example assingment', 'This is a simple example assignment to show the ADM server funtionality', 'first');
 
 INSERT INTO admtask(assignment, tasknr, description)
     VALUES ('Example assingment', 1, 'fibonacci');
 
 INSERT INTO admtask(assignment, tasknr, description)
     VALUES ('Example assingment', 2, 'Dice');
+
+CREATE OR REPLACE VIEW admtaskattemptsperemail AS 
+ SELECT admsolution.task, admsolution.email, count(*) AS attemptcount
+   FROM admsolution
+  GROUP BY admsolution.task, admsolution.email;
+
+CREATE OR REPLACE VIEW admsolutionattempts AS 
+ SELECT DISTINCT ON (s.task::text || s.email::text) s.task, s.email, s.submissionstamp, s.code, s.results, t.attemptcount, k.attempts
+   FROM admsolution s
+   JOIN admtaskattemptsperemail t ON s.task::text = t.task::text AND s.email::text = t.email::text
+   JOIN admtask as k on s.task = k.assignment || k.tasknr
+  ORDER BY s.task::text || s.email::text, s.submissionstamp DESC;
+
+

@@ -27,7 +27,7 @@
 	    		{{ (items["assignment"][1] - datetime.datetime.now().date()).days }}<BR />Days left
 	    	</TD>
 	    	<TD>
-	    		<strong><a href="/assignment/{{ items["assignment"][0] }}">{{ items["assignment"][2] }}</a></strong><BR />
+	    		<strong><a href="/assignment/{{ items["assignment"][0] }}">{{ items["assignment"][5] }}::{{ items["assignment"][2] }}</a></strong><BR />
 	    		{{ items["assignment"][3] }}
 	    	</TD>
 	    </TR>
@@ -42,18 +42,28 @@
     </ul>
 
     <TABLE id="myTable">
-	    <TR id="header"><TH width="10%">Daedline</TH><TH width="45%">Description</TH><TH width="45%">result</TH></TR>
+	    <TR id="header"><TH width="10%">Attempt</TH><TH width="45%">Description</TH><TH width="45%">result</TH></TR>
 	    {% for task in items["tasks"] %}
 		    <TR id="task{{ task[1] }}">
 		    	<TD>
-		    		<a name="task{{ task[1] }}"></a>  
-		    		<pre>Task {{ task[1] }}</pre>
+		    		<a name="task{{ task[1] }}"></a>
+		    		{% if task[8] == 0 %}
+			    		<pre>Unlimited</pre>
+		    		{% else %}  
+		    			<pre>Allowed: {{ task[8] }}
+		    			Left: <span id="attempts{{ task[1] }}">{{ task[8] - (task[7] or 0) }}</span></pre>
+		    		{% end %}
 		    	</TD>
 		    	<TD>
 		    		<pre>{{ task[2] }}</pre><BR />
-		    		<form id="task{{ task[1] }}" action="" method="post">
+		    		<form id="frmTask{{ task[1] }}" action="" method="post">
 					    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
 					    <input type="hidden" name="task" value="{{ task[1] }}">
+					    {% if task[8] == 0 %}
+					        <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="inf">
+					    {% else %}
+					        <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="{{task[8] - (task[7] or 0)}}">
+					    {% end  %}
 						<textarea class="lined" cols="120" rows="17" name="code">{{ task[5] }}</textarea><BR />
 						{% raw xsrf_form_html() %}
 						<button type="button" name="submit" onclick="processSubmission('{{ task[1] }}')">Submit task</button>    

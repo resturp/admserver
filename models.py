@@ -30,9 +30,12 @@ class User(object):
     
     def __init__(self, handler):
         self.email = tornado.escape.xhtml_escape(handler.current_user)
+        query = "Select courses from admuser where email = %s"
+        self.courses = ';' + Pgdb(self).get_record(query, (self.email,))[0] + ';'
         wildcard = pgdb_ripsymbol + '%'
-        
-        self.assginments = Pgdb(self).get_records("Select md5(title) as id, * from admassignment where title NOT SIMILAR TO %s", (wildcard,))
+
+        query = "Select md5(title) as id, * from admassignment where title NOT SIMILAR TO %s and position(';' || course || ';' in %s) > 0 Order by course, deadline"        
+        self.assginments = Pgdb(self).get_records(query, (wildcard, self.courses,))
         self.assignment = None
         self.tasks = None
     
@@ -57,6 +60,16 @@ class User(object):
             self.assginment = Pgdb(self).get_record(query,(md5hash,))
         return self.assginment
 
+    def can_attempt(self, task):
+        query = "SELECT attempts, attemptcount from admsolutionattempts where email = %s and task = %s"
+        data = (self.email, task)
+        result = Pgdb(self).get_record(query, data)
+        print result[0]
+        print result[1]
+        
+        print (result[0] > 0) or (result[1] < result[0])
+        return (result[0] == 0) or (result[1] < result[0])
+        
     def get_tasks(self, md5hash):
         if self.tasks == None:
             query = (""
@@ -64,15 +77,17 @@ class User(object):
             "   md5(admassignment.title) as id, "
             "   admtask.tasknr as tasknr, admtask.description as description, "
             "   admtask.testsuite as testsuite, "
-            "   admsolution.submissionstamp, "
-            "   admsolution.code, "
-            "   admsolution.results "
+            "   admsolutionattempts.submissionstamp, "
+            "   admsolutionattempts.code, "
+            "   admsolutionattempts.results, "
+            "   admsolutionattempts.attemptcount, "
+            "   admtask.attempts "
             "from "
-            "   (admassignment inner join admtask on admassignment.title = admtask.assignment) left outer join admsolution "
-            "   on (admassignment.title || admtask.tasknr = admsolution.task and "
-            "       admsolution.email = %s) "
+            "   (admassignment inner join admtask on admassignment.title = admtask.assignment) left outer join admsolutionattempts "
+            "   on (admassignment.title || admtask.tasknr = admsolutionattempts.task and "
+            "       admsolutionattempts.email = %s) "
             "where md5(admassignment.title) = %s"
-            "order by admtask.assignment || admtask.tasknr, admsolution.submissionstamp desc ")
+            "order by admtask.assignment || admtask.tasknr, admsolutionattempts.submissionstamp desc ")
             self.tasks = Pgdb(self).get_records(query,(self.email,md5hash))            
         return self.tasks
     
@@ -100,29 +115,31 @@ class User(object):
         data = (title + task, self.email ,code, resultset)
         return Pgdb(self).execute(query,data)
 
-    def store_tests(self, title,task, description, tests):
+    def store_tests(self, title,task, description, tests, attempts):
         if not task.isdigit():
             query = "select count(assignment)+1 from admtask where assignment = %s"
             data = (title,)
             task = Pgdb(self).get_record(query,data)[0]            
-            query = "INSERT into admtask (assignment, tasknr, description,testsuite) values (%s, %s, %s, %s)"
-            data = (title, task, description,tests)
+            query = "INSERT into admtask (assignment, tasknr, description,testsuite, attempts) values (%s, %s, %s, %s, %s)"
+            data = (title, task, description, tests, attempts)
             return Pgdb(self).execute(query,data)
         else:
             query = "select count(assignment) from admtask where assignment = %s and tasknr = %s"
             data = (title, task)
-            query = "UPDATE admtask set description = %s, testsuite = %s where assignment = %s and tasknr = %s"
-            data = (description,tests, title, task)
+            query = "UPDATE admtask set description = %s, testsuite = %s, attempts = %s where assignment = %s and tasknr = %s"
+            data = (description,tests, attempts, title, task)
             return Pgdb(self).execute(query,data)
         
-    def store_assignment(self,title,deadline,description, isnew):
+    def store_assignment(self,title,deadline,description, course, isnew):
         if isnew :           
-            query = "INSERT into admassignment (deadline, title, description) values (%s, %s, %s)"
-            data = (deadline, title, description)
+            query = "INSERT into admassignment (deadline, title, description, course) values (%s, %s, %s, %s)"
+            data = (deadline, title, description, course)
             return Pgdb(self).execute(query,data)
         else:
-            query = "UPDATE admassignment set description = %s, deadline = %s where title = %s"
-            data = (description,deadline, title)
+            query = "UPDATE admassignment set description = %s, deadline = %s, course = %s where title = %s"
+            data = (description,deadline, course, title)
+            print query
+            print data
             return Pgdb(self).execute(query,data)
         
     def delete_assignment(self, assignment):

@@ -23,7 +23,8 @@
     <input type="hidden" name="assignment" value="{{ assignment[2] }}">
     <input type="hidden" name="isnew" value="False">
     <input type="date" name="deadline" value="{{ assignment[1] }}"><BR />
-    <input type="text" name="title" value="{{ assignment[2] }}"  disabled><BR />
+    <input type="text" name="title" value="{{ assignment[2] }}" readOnly="true"><BR />
+    <input type="text" name="course" value="{{ assignment[5] }}" readOnly="true"><BR />
 	<textarea class="lined" cols="120" rows="4" name="description">{{ assignment[3] }}</textarea><BR />
     <input type="submit" value="Update assignment">
 	{% raw xsrf_form_html() %}    
@@ -45,7 +46,8 @@
     <input type="hidden" name="isnew" value="True">
     <input type="date" name="deadline" value="yyyy-mm-dd"><BR />
     <input type="text" name="title" value="short descriptive title"><BR />
-	<textarea class="lined" cols="120" rows="4" name="description">Detailed introduction of the assignment</textarea><BR />
+    <input type="text" name="course" value="first"><BR />
+    <textarea class="lined" cols="120" rows="4" name="description">Detailed introduction of the assignment</textarea><BR />
     <input type="submit" value="Create assignment">
 	{% raw xsrf_form_html() %}    
     </form>    

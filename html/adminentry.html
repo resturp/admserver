@@ -31,10 +31,10 @@
     {% for task in items["tasks"] %}
     <TR><TD><a name="task{{ task[1] }}"></a><pre>Task {{ task[1] }}</pre>
     </TD><TD>
-    <pre>{{ task[2] }}</pre><BR />
     <form action="/admin/{{ items["assignment"][0] }}" method="post">
     <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
     <input type="hidden" name="task" value="{{ task[1] }}">
+    Attempts: <input type="number" name="attempts" value="{{ task[8] }}"><BR /><BR />
 	<textarea class="lined" cols="120" rows="4" name="description">{{ task[2] }}</textarea><BR />
 	<textarea class="lined" cols="120" rows="17" name="tests">{{ task[3] }}</textarea><BR />
     <input type="submit" value="Update task">
@@ -52,13 +52,13 @@
     
     <TR><TD><a name="*new task*"></a><pre>*new task*</pre>
     </TD><TD>
-    <pre>Description</pre><BR />
     <form action="/admin/{{ items["assignment"][0] }}" method="post">
     <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
     <input type="hidden" name="task" value="new">
+    Attempts: <input type="number" name="attempts" value="0"><BR /><BR />
 	<textarea class="lined" cols="120" rows="4" name="description">enter a clear description of the programming task</textarea><BR />
 	<textarea class="lined" cols="120" rows="17" name="tests">""" Methods that invoke the programmed exercise and assert some state."""</textarea><BR />
-    <input type="submit" value="Submit task">
+    <input type="submit" value="Create task">
 	{% raw xsrf_form_html() %}    
     </form>    
     </TD><TD></TD></TR>

@@ -55,7 +55,7 @@ def runTest{% testclassname %}(myTest, name, attr, myQ):
         getattr(myTest, name)()
         myQ.put("test " + name + ": succes")
     except AssertionError:
-        myQ.put("test " + name + ": failed, \\n    " + attr.__doc__.replace('\\n','\\n    '))
+        myQ.put("test " + name + ": failed, \\n    " + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    '))
     except Exception, e:
         myQ.put("test " + name + ": raised exception, \\n    " + format_exc().replace('\\n','\\n    '))
 
@@ -81,7 +81,7 @@ def run{% testclassname %}():
                 if myQ.empty():
                     myProcess.terminate()
                     
-                    yield "test " + name + ": took more then 2 seconds to execute \\n" + attr.__doc__.replace('\\n','\\n    ')
+                    yield "test " + name + ": took more then 2 seconds to execute \\n" + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    ')
                     noresults = False
                 else:
                     yield myQ.get(False) #+ " (" + str(count * 50) + "ms)") 
