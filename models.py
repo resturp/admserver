@@ -1,6 +1,6 @@
 """
 .. module:: admserver/models
-   :platform: Linix
+   :platform: Linux
    :synopsis: User class with attributes and methods for use cases.
 
 .. moduleauthor:: Thomas Boose <thomas@boose.nl>
@@ -22,6 +22,7 @@
 """
 
 import tornado
+import json
 from pgdb import Pgdb
 from config import *
 import testRunner
@@ -31,6 +32,7 @@ class User(object):
     def __init__(self, handler):
         self.email = tornado.escape.xhtml_escape(handler.current_user)
         query = "Select courses from admuser where email = %s"
+        print self.email
         self.courses = ';' + Pgdb(self).get_record(query, (self.email,))[0] + ';'
         wildcard = pgdb_ripsymbol + '%'
 
@@ -60,20 +62,20 @@ class User(object):
             self.assginment = Pgdb(self).get_record(query,(md5hash,))
         return self.assginment
 
-    def can_attempt(self, task):
-        query = "SELECT attempts, attemptcount from admsolutionattempts where email = %s and task = %s"
-        data = (self.email, task)
+    def can_attempt(self, assignment, tasknr):
+        query = "SELECT attempts, attemptcount from admsolutionattempts where email = %s and assignment = %s and tasknr = %s"
+        data = (self.email, assignment, tasknr)
         result = Pgdb(self).get_record(query, data)
-        print result[0]
-        print result[1]
-        
-        print (result[0] > 0) or (result[1] < result[0])
-        return (result[0] == 0) or (result[1] < result[0])
+        if result is None:
+            return True
+        else:
+            return (result[0] == 0) or (result[1] < result[0])
+            
         
     def get_tasks(self, md5hash):
         if self.tasks == None:
             query = (""
-            "Select distinct on (admtask.assignment || admtask.tasknr) "
+            "Select distinct on (admtask.assignment || ',' || admtask.tasknr) "
             "   md5(admassignment.title) as id, "
             "   admtask.tasknr as tasknr, admtask.description as description, "
             "   admtask.testsuite as testsuite, "
@@ -81,14 +83,16 @@ class User(object):
             "   admsolutionattempts.code, "
             "   admsolutionattempts.results, "
             "   admsolutionattempts.attemptcount, "
-            "   admtask.attempts "
+            "   admtask.attempts, "
+            "   admtask.totalscore, "
+            "   admsolutionattempts.score "
             "from "
             "   (admassignment inner join admtask on admassignment.title = admtask.assignment) left outer join admsolutionattempts "
-            "   on (admassignment.title || admtask.tasknr = admsolutionattempts.task and "
+            "   on (admassignment.title = admsolutionattempts.assignment AND admtask.tasknr = admsolutionattempts.tasknr and "
             "       admsolutionattempts.email = %s) "
             "where md5(admassignment.title) = %s"
-            "order by admtask.assignment || admtask.tasknr, admsolutionattempts.submissionstamp desc ")
-            self.tasks = Pgdb(self).get_records(query,(self.email,md5hash))            
+            "order by admtask.assignment || ',' || admtask.tasknr, admsolutionattempts.submissionstamp desc ")
+            self.tasks = Pgdb(self).get_records(query,(self.email,md5hash))           
         return self.tasks
     
     def delete_task(self, assignment, tasknr):
@@ -103,16 +107,18 @@ class User(object):
         data = (title, task)
         tests = Pgdb(self).get_record(query, data)[0] 
               
-        for result in testRunner.test(code, tests):
+        for result, time in testRunner.test(code, tests):
             if isinstance(result, str):
-                yield result + '\n'
+                yield [result + '\n', time]
             else:
+                strResult = ''
                 for boodschap in result: 
-                    yield boodschap + '\n'
+                    strResult += boodschap
+                yield ["<test>" + json.dumps(["compile", "compile", 0, "Your submission cannot be compiled\n" + strResult]),0]
 
-    def store_solution(self, title, task, code, resultset):
-        query = "Insert into admsolution (task,email,submissionstamp,code, results) values (%s, %s, now(), %s, %s)"
-        data = (title + task, self.email ,code, resultset)
+    def store_solution(self, title, task, code, resultset, score):
+        query = "Insert into admsolution (assignment, tasknr, email, submissionstamp,code, results, score) values (%s, %s, %s, now(), %s, %s, %s)"
+        data = (title, task, self.email ,code, resultset, score)
         return Pgdb(self).execute(query,data)
 
     def store_tests(self, title,task, description, tests, attempts):

@@ -57,7 +57,27 @@
     <input type="hidden" name="task" value="new">
     Attempts: <input type="number" name="attempts" value="0"><BR /><BR />
 	<textarea class="lined" cols="120" rows="4" name="description">enter a clear description of the programming task</textarea><BR />
-	<textarea class="lined" cols="120" rows="17" name="tests">""" Methods that invoke the programmed exercise and assert some state."""</textarea><BR />
+	<pre><textarea class="lined" cols="120" rows="17" name="tests">&quot;&quot;&quot; Methods that invoke the programmed exercise and assert some state.
+    All methods with trailing _ underscores will not be run autonomic 
+    during a test. Test methods are run in random order so isolate them 
+    from each other.&quot;&quot;&quot;
+
+def _setUp(self):
+    &quot;&quot;&quot;Initialize the test environment here if you need to.
+    The -setUp method will be called before all tests. 
+    The total possible score and the initial score can 
+    be set here during setup.&quot;&quot;&quot;
+   
+    self.total = 50
+    self.score = 10
+
+def testExample(self):
+    &quot;&quot;&quot;Feedback for failing&quot;&quot;&quot;
+    assert something() == "some value"
+    #increase the score after the assertion is met
+    self.score += 10
+    
+    </textarea></pre><BR />
     <input type="submit" value="Create task">
 	{% raw xsrf_form_html() %}    
     </form>    

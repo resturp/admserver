@@ -23,6 +23,7 @@
 
 import tornado.web
 import models
+import views
 import hashlib
 import traceback
 
@@ -67,14 +68,11 @@ class AssignmentHandler(BaseHandler):
                          success or failure of the submission
         """
         curuser = models.User(self)
-        if curuser.can_attempt(self.get_argument("assignment","",True) + self.get_argument("task","",True)):
-            resultset = ''
-            for result in curuser.run_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False)):
-                resultset = resultset + result
-                self.write(result)
-                self.flush(False)
+        thisview = views.submissionView()
+        if curuser.can_attempt(self.get_argument("assignment","",True), self.get_argument("task","",True)):
+            resultset, score = thisview.getView(self,curuser)            
             
-            e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset)
+            e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset, score)
             if isinstance(e,Exception):
                 self.write("Error storing solution\n" + e)
             self.flush(True)  

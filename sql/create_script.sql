@@ -31,12 +31,15 @@ WITH (
 
 CREATE TABLE admsolution
 (
-  task character varying(255) NOT NULL,
+  assignment character varying(255) NOT NULL,
+  tasknr integer NOT NULL,
   email character varying(255) NOT NULL,
   submissionstamp timestamp without time zone NOT NULL,
   code text,
   results text,
-  CONSTRAINT submission_key PRIMARY KEY (task , email , submissionstamp )
+  score integer NOT NULL,
+
+  CONSTRAINT submission_key PRIMARY KEY (assignment, tasknr , email , submissionstamp )
 )
 WITH (
   OIDS=FALSE
@@ -49,6 +52,7 @@ CREATE TABLE admtask
   description text,
   testsuite text,
   attempts integer NOT NULL DEFAULT 0,
+  totalscore integer NOT NULL DEFAULT 0,
   CONSTRAINT "task-key" PRIMARY KEY (assignment , tasknr )
 )
 WITH (
@@ -68,7 +72,7 @@ WITH (
 );
 
 
-INSERT INTO admuser(email, password, isadmin, course)
+INSERT INTO admuser(email, password, isadmin, courses)
     VALUES ('admin@site.local','admin', TRUE, 'first'),('user@site.local','user',FALSE, 'first');
 
 INSERT INTO admassignment(deadline, title, description, course)
@@ -81,15 +85,15 @@ INSERT INTO admtask(assignment, tasknr, description)
     VALUES ('Example assingment', 2, 'Dice');
 
 CREATE OR REPLACE VIEW admtaskattemptsperemail AS 
- SELECT admsolution.task, admsolution.email, count(*) AS attemptcount
+ SELECT admsolution.assignment, admsolution.tasknr, admsolution.email, count(*) AS attemptcount
    FROM admsolution
-  GROUP BY admsolution.task, admsolution.email;
+  GROUP BY admsolution.assignment, admsolution.tasknr, admsolution.email;
 
 CREATE OR REPLACE VIEW admsolutionattempts AS 
- SELECT DISTINCT ON (s.task::text || s.email::text) s.task, s.email, s.submissionstamp, s.code, s.results, t.attemptcount, k.attempts
+ SELECT DISTINCT ON (s.assignment::text || ',' || s.tasknr::text || ',' || s.email::text) s.assignment, s.tasknr, s.email, s.submissionstamp, s.code, s.results, s.score, t.attemptcount, k.attempts, k.totalscore
    FROM admsolution s
-   JOIN admtaskattemptsperemail t ON s.task::text = t.task::text AND s.email::text = t.email::text
-   JOIN admtask as k on s.task = k.assignment || k.tasknr
-  ORDER BY s.task::text || s.email::text, s.submissionstamp DESC;
+   JOIN admtaskattemptsperemail t ON s.assignment = t.assignment AND s.tasknr = t.tasknr AND s.email = t.email
+   JOIN admtask as k on s.assignment = k.assignment and s.tasknr = k.tasknr
+  ORDER BY s.assignment::text || ',' || s.tasknr::text || ',' || s.email::text, s.submissionstamp DESC;
 
 

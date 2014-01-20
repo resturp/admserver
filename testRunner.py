@@ -47,17 +47,24 @@ def get_source_template():
     return '''{% source %}
     
 import time
+import json
 from multiprocessing import Process, Queue
 from traceback import format_exc
 
 def runTest{% testclassname %}(myTest, name, attr, myQ):
-    try:    
+    """ try to run the test and return the testresult.
+    returns by means of myQ: "<test>" + a json encoded string of:
+    [testname, "succes|failed|exception", score, description]"""  
+    try:
+        startScore = getattr(myTest, 'score', 0)
         getattr(myTest, name)()
-        myQ.put("test " + name + ": succes")
+        myScore = getattr(myTest, 'score', 0) - startScore
+                
+        myQ.put("<test>" + json.dumps([name, "succes", myScore, "You passed the test"]))
     except AssertionError:
-        myQ.put("test " + name + ": failed, \\n    " + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    '))
+        myQ.put("<test>" + json.dumps([name, "failed", 0, "\\n    " + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    ')]))
     except Exception, e:
-        myQ.put("test " + name + ": raised exception, \\n    " + format_exc().replace('\\n','\\n    '))
+        myQ.put("<test>" + json.dumps([name, "exception", 0, "\\n    " + format_exc().replace('\\n','\\n    ')]))
 
 class {% testclassname %}():
 {% tests %}
@@ -66,6 +73,15 @@ def run{% testclassname %}():
     myTest = {% testclassname %}()
     results = []
     noresults = True
+    try:
+        myTest._setUp()
+        total = getattr(myTest, 'total', 0)
+        score = getattr(myTest, 'score', 0)
+        yield ["<test>" + json.dumps(["setup","setup", score , "The test environment has been setup."]),total]
+    except Exception:
+        pass
+    
+    myScore = Queue()
     for name in dir(myTest):
         if not name[:1] == '_': 
             attr = getattr(myTest,name)
@@ -79,15 +95,26 @@ def run{% testclassname %}():
                     count += 1
                 time.sleep(0.1)
                 if myQ.empty():
-                    myProcess.terminate()
+                    myProcess.terminate() 
+                    yield ["<test>" + json.dumps([name, "time", 0 , "It took more then 2.5 seconds to execute this test \\n" + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    ')]), 2500]
+                    noresults = False
+                else:                    
+                    yield [myQ.get(False) , count * 50] 
+                    noresults = False
                     
-                    yield "test " + name + ": took more then 2 seconds to execute \\n" + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    ')
-                    noresults = False
-                else:
-                    yield myQ.get(False) #+ " (" + str(count * 50) + "ms)") 
-                    noresults = False
     if noresults:
-        yield "no results"
+        yield ["<test>" + json.dumps(["no test","testless",0,"There are no results. are there no tests?"]),0]
+
+#    try:
+#        toScore = myTest.score)
+#        for data  
+#        while not myScore.empty():
+#            toScore += myScore.get()
+            
+#        yield "score: " + str((100 * eval (toScore)) / myTest.total) + "%"
+#        myTest._tearDown()
+#    except Exception:
+#        pass   
 '''
 
 
@@ -151,8 +178,8 @@ def test(source, tests):
             yield result
             noreturn = False
         if noreturn:
-            yield "no results."
+            yield ["no results.",0]
     except SyntaxError as e:
-        yield traceback.format_exception_only(SyntaxError , e)
+        yield [traceback.format_exception_only(SyntaxError , e),0]
     except NameError as e:
-        yield traceback.format_exception_only(NameError , e)
+        yield [traceback.format_exception_only(NameError , e),0]

@@ -75,10 +75,10 @@ function processSubmission(task) {
 		if (http.status == 200) {
 			switch(http.readyState) {
 			case 3:
-				document.getElementById("Response" + task).innerHTML = "Processing .....\n\n" + http.responseText;
+				document.getElementById("Response" + task).innerHTML = "Processing .....<BR /><BR />" + http.responseText;
 				break;
 			case 4:
-				document.getElementById("Response" + task).innerHTML = "Done .....\n\n" + http.responseText;
+				document.getElementById("Response" + task).innerHTML = "Done .....<BR /><BR />" + http.responseText;
 			}
 		} 
 	}
