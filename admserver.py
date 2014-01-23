@@ -40,6 +40,7 @@ application = tornado.web.Application([
     (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
     (r"/login", auth.LoginHandler),
     (r"/logout", auth.LogoutHandler),
+    (r"/profile", handlers.profileHandler),    
     (r"/", handlers.AssignmentHandler),
     (r"/assignment", handlers.AssignmentHandler),
     (r"/assignment/([^/]+)", handlers.EntryHandler),
@@ -47,6 +48,7 @@ application = tornado.web.Application([
     (r"/admin", handlers.AdminHandler),
     (r"/admin/([^/]+)", handlers.AdminEntryHandler),
     (r"/deletetask", handlers.DeleteTaskHandler),
+    
     
 ], **settings )
 

@@ -27,13 +27,34 @@ from pgdb import Pgdb
 from config import *
 import testRunner
 
+
+class Assignment(object):
+
+    def __init__(self,md5hash):
+        self.md5hash = md5hash
+        
+    def get_scores(self):
+        query = "Select assignment, tasknr, nickname, score from admsolutionattempts where md5(assignment) = %s ORDER by tasknr, score desc"        
+        return Pgdb(self).get_records(query, (self.md5hash,))
+
+    def get_title(self):
+        query = "Select title from admassignment where md5(title) = %s"        
+        return Pgdb(self).get_record(query, (self.md5hash,))[0]
+    
+    def store_total(self, tasknr, total):
+        query = "Update admtask set totalscore = %s where md5(assignment) = %s and tasknr = %s"
+        Pgdb(self).execute(query, (total, self.md5hash, tasknr))
+
 class User(object):
     
     def __init__(self, handler):
         self.email = tornado.escape.xhtml_escape(handler.current_user)
-        query = "Select courses from admuser where email = %s"
-        print self.email
-        self.courses = ';' + Pgdb(self).get_record(query, (self.email,))[0] + ';'
+        query = "Select courses, nickname, password from admuser where email = %s"
+        record = Pgdb(self).get_record(query, (self.email,))
+        self.courses = ';' + record[0] + ';'
+        self.nickname = record[1]
+        self.password = record[2]
+        
         wildcard = pgdb_ripsymbol + '%'
 
         query = "Select md5(title) as id, * from admassignment where title NOT SIMILAR TO %s and position(';' || course || ';' in %s) > 0 Order by course, deadline"        
@@ -46,6 +67,30 @@ class User(object):
     
     def get_email(self):
         return self.email
+    
+    def get_courses(self):
+        return self.courses[1:-1]
+    
+    def get_nickname(self):
+        return self.nickname
+    
+    def get_password(self):
+        return self.password
+
+    def set_courses(self,courses):
+        self.courses = ';' + courses + ';'
+    
+    def set_nickname(self, nickname):
+        self.nickname = nickname
+    
+    def set_password(self, password):
+        self.password = password
+    
+    def store_profile(self):  
+        query = "update admuser set courses = %s , nickname = %s, password = %s where email = %s"
+        data = (self.get_courses(), self.get_nickname(), self.get_password(), self.email)
+        return Pgdb(self).execute(query,data)
+        
     
     def is_admin(self):
         return Pgdb(self).get_record("Select isadmin from admuser where email = %s",(self.email,))[0]
@@ -77,7 +122,8 @@ class User(object):
             query = (""
             "Select distinct on (admtask.assignment || ',' || admtask.tasknr) "
             "   md5(admassignment.title) as id, "
-            "   admtask.tasknr as tasknr, admtask.description as description, "
+            "   admtask.tasknr as tasknr,"
+            "   admtask.description as description, "
             "   admtask.testsuite as testsuite, "
             "   admsolutionattempts.submissionstamp, "
             "   admsolutionattempts.code, "

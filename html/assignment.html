@@ -3,7 +3,7 @@
   <head>
      <meta charset="UTF-8">
      <title>ADM solution submission server</title>
-     <link href="static/admserver.css" rel="Stylesheet" type="text/css">
+     <link href="/static/admserver.css" rel="Stylesheet" type="text/css">
   </head> 
 
   <body>
@@ -12,18 +12,28 @@
 	    {% if items["isadmin"] %}
 		<li class="navbar"><a href="/admin" class="navbar">Admin</a></li>
 	    {% end %}
-		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
+		<li class="navbar"><a href="/profile" class="navbar">Profile: {{ items["name"] }}</a></li>
       </ul>
     
     <TABLE>
-    <TR><TH width="10%">Daedline</TH><TH width="45%">Description</TH><TH width="45%">&nbsp</TH></TR>
+    <TR><TH width="10%">Daedline</TH><TH width="45%">Description</TH><TH width="45%">Leaderboard</TH></TR>
     
     {% for assignment in items["assignments"] %}
     <TR><TD><pre>
     {{ (assignment[1] - datetime.datetime.now().date()).days }}<BR />Days left
     </pre></TD><TD>
     <strong><a href="/assignment/{{ assignment[0] }}">{{ assignment[5] }}::{{ assignment[2] }}</a></strong><BR /><pre>
-    {{ assignment[3] }}</pre></TD><TD></TD></TR>
+    {{ assignment[3] }}</pre>
+    </TD><TD>
+        <TABLE>
+	    {% for score in items[assignment[0]] %}
+	    <TR>
+	       <TD width="15%">task: {{ score[1] }}</TD>
+	       <TD>{{ score[3] }}: {{ score[2] }} </TD>
+	    </TR>
+		{% end %}
+    </TABLE>
+    </TD></TR>
     {% end %}
     </TABLE>
     </div>

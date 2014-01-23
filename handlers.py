@@ -38,7 +38,31 @@ class BaseHandler(tornado.web.RequestHandler):
         :returns:  str.
         """
         return self.get_secure_cookie("adm_user")
+
+        
+class profileHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        curuser = models.User(self)
+        items = {}
+        items["name"] = curuser.get_email()
+        items["isadmin"] = curuser.is_admin()
+        items["courses"] = curuser.get_courses()
+        items["nickname"] = curuser.get_nickname()
+        items["password"] = curuser.get_password()
+        
+        self.render('html/profile.html', title="ADM server", items=items)
     
+
+    @tornado.web.authenticated
+    def post(self):
+        curuser = models.User(self)
+        curuser.set_courses( self.get_argument("courses", "first", True) )
+        curuser.set_nickname( self.get_argument("nickname", "Ada Lovelace", True) )
+        curuser.set_password( self.get_argument("password", "admin" , False) )
+        e = curuser.store_profile()
+        self.redirect("/")
+
             
 class AssignmentHandler(BaseHandler):
     """Handle GET requests to /.
@@ -55,7 +79,12 @@ class AssignmentHandler(BaseHandler):
         curuser = models.User(self)
         items = {}
         items["name"] = curuser.get_email()
+        items["last"] = ""
         items["assignments"] = curuser.get_assignments()
+        for item in items["assignments"]:
+            myAssignment = models.Assignment(item[0])
+            items[item[0]] = myAssignment.get_scores()
+        
         items["isadmin"] = curuser.is_admin()
         self.render('html/assignment.html', title="ADM server", items=items)
 
@@ -68,9 +97,10 @@ class AssignmentHandler(BaseHandler):
                          success or failure of the submission
         """
         curuser = models.User(self)
+        assignment = models.Assignment(self.get_argument("md5hash","",True))
         thisview = views.submissionView()
         if curuser.can_attempt(self.get_argument("assignment","",True), self.get_argument("task","",True)):
-            resultset, score = thisview.getView(self,curuser)            
+            resultset, score = thisview.getView(self,curuser, assignment)            
             
             e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset, score)
             if isinstance(e,Exception):

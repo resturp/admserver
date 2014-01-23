@@ -3,8 +3,9 @@
   <head>
      <meta charset="UTF-8">
      <title>ADM solution submission server</title>
-     <script src="/static/jquery-2.0.3.js"></script>
-
+     <script src="/static/jquery.js"></script>
+     <script src="/static/apprise-v2.js"></script>
+     
      <script src="/static/jquery-linedtextarea.js"></script>
      <link href="/static/jquery-linedtextarea.css" rel="stylesheet" type="text/css" />
 
@@ -18,7 +19,7 @@
 		{% if items["isadmin"] %}
 		<li class="navbar"><a href="/admin" class="navbar">Admin</a></li>
 		{% end %}
-		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
+		<li class="navbar"><a href="/profile" class="navbar">Profile: {{ items["name"] }}</a></li>
 	</ul>
     <TABLE id="tableAssignment">
 	    <TR id="header"><TH width="10%">Daedline</TH><TH width="90%">Description ....</TH></TR>
@@ -36,7 +37,7 @@
     <ul id="listTasks" class="navbar tabs"> 
     {% for task in items["tasks"] %}
 	    <li class="navbar">
-	    <a class="navbar" id="task{{ task[1] }}" onClick="showTask('task{{ task[1] }}')">task{{ task[1] }}</a>
+	    <a class="navbar" id="task{{ task[1] }}" onClick="showTask('task{{ task[1] }}')">task{{ task[1] }} ( {{ task[10] }}{% if task[9] > 0 %}%{% end %} )</a>
 	    </li>
     {% end %}
     </ul>
@@ -57,6 +58,7 @@
 		    	<TD>
 		    		<pre>{{ task[2] }}</pre><BR />
 		    		<form id="frmTask{{ task[1] }}" action="" method="post">
+		    			<input type="hidden" name="md5hash" value="{{ items["assignment"][0] }}">
 					    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
 					    <input type="hidden" name="task" value="{{ task[1] }}">
 					    {% if task[8] == 0 %}

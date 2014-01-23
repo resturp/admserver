@@ -23,25 +23,31 @@
 import json
 
 class submissionView(object):
-    def getView(self, target, curuser):
+    
+    def getView(self, target, curuser, assignment):
         resultset = ''
         myScore = 0
         myTotal = 0
+        
+        
         for result, time in curuser.run_solution(target.get_argument("assignment","",True),target.get_argument("task","",True),target.get_argument("code", "", False)):
                 
             data = json.loads( result.split("<test>")[1])
             if data[1] == "setup":
                 myTotal = time
+                assignment.store_total(target.get_argument("task","",True), myTotal)
+                
             strResult = """<img height="24" width="24" src="/static/""" + data[1] + """.png" alt=""" + data[1] + """>"""
             strResult += " " + data[0]
             myScore += data[2]
-            strResult += " <span title='" + data[3] + "'> more info ...</span>"
+            strResult += """ <a href='#' onclick="showDialog('""" + data[3].replace("\n","\\n").replace("'",'`').replace('"','`') + """');"> more info ...</a>"""
                 
             strResult += "</BR>"
             resultset += strResult
             target.write(strResult)
             target.flush(False)
 
+            
         if myTotal > 0:
             strResult =  """<img height="24" width="24" src="/static/score.png" alt="score"> Score:""" + str(myScore) + " out of " + str(myTotal) + " is " + str((myScore * 100) / myTotal) + "%"
             myTotal = (myScore * 100) / myTotal

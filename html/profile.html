@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+     <meta charset="UTF-8">
+     <title>ADM solution submission server</title>
+     <script src="/static/jquery.js"></script>
+     <script src="/static/apprise-v2.js"></script>
+     
+     <script src="/static/jquery-linedtextarea.js"></script>
+     <link href="/static/jquery-linedtextarea.css" rel="stylesheet" type="text/css" />
+
+     <script src="/static/admserver.js"></script>
+     <link href="/static/admserver.css" rel="Stylesheet" type="text/css" />
+  </head> 
+
+  <body onload="initPage();">
+	<ul class="navbar"> 
+		<li class="navbar"><a href="/assignment" class="navbar active">Assignment</a></li>
+		{% if items["isadmin"] %}
+		<li class="navbar"><a href="/admin" class="navbar">Admin</a></li>
+		{% end %}
+		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
+	</ul>
+    <TABLE id="tableProfile">
+	    <TR id="header"><TH width="10%">Image</TH><TH width="90%">Profile.</TH></TR>
+	    <TR id="profile" >
+	    	<TD>
+	    		
+	    	</TD>
+	    	<TD>
+			    <form action="/profile" method="post">
+				    courses : <input type="text" name="courses" value="{{ items["courses"] }}"><BR />
+				    nickname: <input type="text" name="nickname" value="{{ items["nickname"] }}"><BR />
+				    password: <input type="password" name="password" value="{{ items["password"] }}"><BR />
+				    <input type="submit" value="Update profile">
+					{% raw xsrf_form_html() %}    
+			    </form>    
+	    	</TD>
+	    </TR>
+    </TABLE>
+    
+    
+    
+  </body>
+</html>

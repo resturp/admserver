@@ -9,6 +9,12 @@ function initPage() {
 	mainElem.onmouseout = function() {hideDetail(mainElem.rows[1],200);};	
 }
 
+function showDialog(text) {
+
+    alert(text);
+
+}
+
 function showDetail(elem, ms) {
 	clearTimeout(timeout);
 	timeout = setTimeout(function() {elem.style.display = '';}, ms);

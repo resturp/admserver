@@ -46,4 +46,4 @@ class LogoutHandler(handlers.BaseHandler):
     def get(self):
         self.clear_cookie("adm_user")
         self.redirect("/login")
-
+   

@@ -65,6 +65,7 @@ CREATE TABLE admuser
   password character varying(255),
   isadmin boolean NOT NULL DEFAULT false,
   courses character varying(255),
+  nickname character varying(255) DEFAULT 'Ada Lovelace',
   CONSTRAINT pkey PRIMARY KEY (email )
 )
 WITH (
@@ -90,10 +91,11 @@ CREATE OR REPLACE VIEW admtaskattemptsperemail AS
   GROUP BY admsolution.assignment, admsolution.tasknr, admsolution.email;
 
 CREATE OR REPLACE VIEW admsolutionattempts AS 
- SELECT DISTINCT ON (s.assignment::text || ',' || s.tasknr::text || ',' || s.email::text) s.assignment, s.tasknr, s.email, s.submissionstamp, s.code, s.results, s.score, t.attemptcount, k.attempts, k.totalscore
+ SELECT DISTINCT ON (s.assignment::text || ',' || s.tasknr::text || ',' || s.email::text) s.assignment, s.tasknr, s.email, s.submissionstamp, s.code, s.results, s.score, t.attemptcount, k.attempts, k.totalscore, u.nickname
    FROM admsolution s
    JOIN admtaskattemptsperemail t ON s.assignment = t.assignment AND s.tasknr = t.tasknr AND s.email = t.email
    JOIN admtask as k on s.assignment = k.assignment and s.tasknr = k.tasknr
+   JOIN admuser as u on s.email = u.email
   ORDER BY s.assignment::text || ',' || s.tasknr::text || ',' || s.email::text, s.submissionstamp DESC;
 
 
