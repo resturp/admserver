@@ -220,7 +220,8 @@ class AdminEntryHandler(BaseHandler):
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            e = curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False), self.get_argument("attempts", "", False) )
+            
+            e = curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False), self.get_argument("attempts", "", False), self.get_argument("template", "", False) )
             if isinstance(e,Exception):
                 self.write("<pre>Error storing test\n" + e + "</pre>")
                 self.flush(True)

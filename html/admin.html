@@ -24,7 +24,7 @@
     <input type="hidden" name="isnew" value="False">
     <input type="date" name="deadline" value="{{ assignment[1] }}"><BR />
     <input type="text" name="title" value="{{ assignment[2] }}" readOnly="true"><BR />
-    <input type="text" name="course" value="{{ assignment[5] }}" readOnly="true"><BR />
+    <input type="text" name="course" value="{{ assignment[5] }}"><BR />
 	<textarea class="lined" cols="120" rows="4" name="description">{{ assignment[3] }}</textarea><BR />
     <input type="submit" value="Update assignment">
 	{% raw xsrf_form_html() %}    

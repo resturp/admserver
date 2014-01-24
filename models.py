@@ -131,7 +131,8 @@ class User(object):
             "   admsolutionattempts.attemptcount, "
             "   admtask.attempts, "
             "   admtask.totalscore, "
-            "   admsolutionattempts.score "
+            "   admsolutionattempts.score, "
+            "   admtask.template "
             "from "
             "   (admassignment inner join admtask on admassignment.title = admtask.assignment) left outer join admsolutionattempts "
             "   on (admassignment.title = admsolutionattempts.assignment AND admtask.tasknr = admsolutionattempts.tasknr and "
@@ -167,19 +168,21 @@ class User(object):
         data = (title, task, self.email ,code, resultset, score)
         return Pgdb(self).execute(query,data)
 
-    def store_tests(self, title,task, description, tests, attempts):
+    def store_tests(self, title,task, description, tests, attempts, template):
         if not task.isdigit():
             query = "select count(assignment)+1 from admtask where assignment = %s"
             data = (title,)
             task = Pgdb(self).get_record(query,data)[0]            
-            query = "INSERT into admtask (assignment, tasknr, description,testsuite, attempts) values (%s, %s, %s, %s, %s)"
-            data = (title, task, description, tests, attempts)
+            query = "INSERT into admtask (assignment, tasknr, description,testsuite, attempts, template) values (%s, %s, %s, %s, %s, %s)"
+            data = (title, task, description, tests, attempts, template)
             return Pgdb(self).execute(query,data)
         else:
             query = "select count(assignment) from admtask where assignment = %s and tasknr = %s"
             data = (title, task)
-            query = "UPDATE admtask set description = %s, testsuite = %s, attempts = %s where assignment = %s and tasknr = %s"
-            data = (description,tests, attempts, title, task)
+            query = "UPDATE admtask set description = %s, testsuite = %s, attempts = %s, template = %s where assignment = %s and tasknr = %s"
+            data = (description,tests, attempts, template, title, task)
+            print query
+            print data
             return Pgdb(self).execute(query,data)
         
     def store_assignment(self,title,deadline,description, course, isnew):
@@ -190,8 +193,6 @@ class User(object):
         else:
             query = "UPDATE admassignment set description = %s, deadline = %s, course = %s where title = %s"
             data = (description,deadline, course, title)
-            print query
-            print data
             return Pgdb(self).execute(query,data)
         
     def delete_assignment(self, assignment):

@@ -53,11 +53,13 @@ CREATE TABLE admtask
   testsuite text,
   attempts integer NOT NULL DEFAULT 0,
   totalscore integer NOT NULL DEFAULT 0,
+  template text,
   CONSTRAINT "task-key" PRIMARY KEY (assignment , tasknr )
 )
 WITH (
   OIDS=FALSE
 );
+
 
 CREATE TABLE admuser
 (

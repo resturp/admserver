@@ -62,9 +62,9 @@ def runTest{% testclassname %}(myTest, name, attr, myQ):
                 
         myQ.put("<test>" + json.dumps([name, "succes", myScore, "You passed the test"]))
     except AssertionError:
-        myQ.put("<test>" + json.dumps([name, "failed", 0, "\\n    " + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    ')]))
+        myQ.put("<test>" + json.dumps([name, "failed", 0, "\\n" + (attr.__doc__ or 'No suggestion')]))
     except Exception, e:
-        myQ.put("<test>" + json.dumps([name, "exception", 0, "\\n    " + format_exc().replace('\\n','\\n    ')]))
+        myQ.put("<test>" + json.dumps([name, "exception", 0, "\\n" + (attr.__doc__ or 'No suggestion') + "\\n\\n" + format_exc()]))
 
 class {% testclassname %}():
 {% tests %}
@@ -96,7 +96,7 @@ def run{% testclassname %}():
                 time.sleep(0.1)
                 if myQ.empty():
                     myProcess.terminate() 
-                    yield ["<test>" + json.dumps([name, "time", 0 , "It took more then 2.5 seconds to execute this test \\n" + (attr.__doc__ or 'No suggestion').replace('\\n','\\n    ')]), 2500]
+                    yield ["<test>" + json.dumps([name, "time", 0 , "It took more then 2.5 seconds to execute this test \\n" + (attr.__doc__ or 'No suggestion')]), 2500]
                     noresults = False
                 else:                    
                     yield [myQ.get(False) , count * 50] 

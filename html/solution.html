@@ -66,7 +66,7 @@
 					    {% else %}
 					        <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="{{task[8] - (task[7] or 0)}}">
 					    {% end  %}
-						<textarea class="lined" cols="120" rows="17" name="code">{{ task[5] }}</textarea><BR />
+						<textarea class="lined" cols="120" rows="17" name="code">{% if (task[5] is None) %}{{ task[11] }}{% else %}{{ task[5] }}{% end %}</textarea><BR />
 						{% raw xsrf_form_html() %}
 						<button type="button" name="submit" onclick="processSubmission('{{ task[1] }}')">Submit task</button>    
 		    		</form> 				
