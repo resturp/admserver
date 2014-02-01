@@ -68,10 +68,12 @@
 					    {% end  %}
 						<textarea class="lined" cols="120" rows="17" name="code">{% if (task[5] is None) %}{{ task[11] }}{% else %}{{ task[5] }}{% end %}</textarea><BR />
 						{% raw xsrf_form_html() %}
-						<button type="button" name="submit" onclick="processSubmission('{{ task[1] }}')">Submit task</button>    
-		    		</form> 				
 		    	</TD>
 		    	<TD>
+						
+						<button type="button" name="submit" onclick="processSubmission('{{ task[1] }}')">Submit task</button><BR /> <BR />   
+		    		</form> 				
+
 		    		<span id="Response{{ task[1] }}">{% raw task[6] %}</span>
 		    	</TD>
 		    </TR>

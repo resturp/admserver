@@ -54,17 +54,21 @@ from traceback import format_exc
 def runTest{% testclassname %}(myTest, name, attr, myQ):
     """ try to run the test and return the testresult.
     returns by means of myQ: "<test>" + a json encoded string of:
-    [testname, "succes|failed|exception", score, description]"""  
+    [testname, "succes|message|failed|exception", score, description]"""  
     try:
+        ds = (attr.__doc__ or 'No suggestion')
         startScore = getattr(myTest, 'score', 0)
         getattr(myTest, name)()
         myScore = getattr(myTest, 'score', 0) - startScore
-                
-        myQ.put("<test>" + json.dumps([name, "succes", myScore, "You passed the test"]))
+        
+        if ds == (attr.__doc__ or 'No suggestion'):        
+            myQ.put("<test>" + json.dumps([name, "succes", myScore, "You passed the test"]))
+        else:
+            myQ.put("<test>" + json.dumps([name, "message", myScore, "\\n" + (attr.__doc__ or 'No suggestion')]))
     except AssertionError:
-        myQ.put("<test>" + json.dumps([name, "failed", 0, "\\n" + (attr.__doc__ or 'No suggestion')]))
+        myQ.put("<test>" + json.dumps([name, "failed", 0, "\\n" + ds]))
     except Exception, e:
-        myQ.put("<test>" + json.dumps([name, "exception", 0, "\\n" + (attr.__doc__ or 'No suggestion') + "\\n\\n" + format_exc()]))
+        myQ.put("<test>" + json.dumps([name, "exception", 0, "\\n" + ds + "\\n\\n" + format_exc()]))
 
 class {% testclassname %}():
 {% tests %}
@@ -89,6 +93,7 @@ def run{% testclassname %}():
                 myQ = Queue()
                 myProcess = Process(target=runTest{% testclassname %}, args=(myTest, name, attr, myQ))
                 myProcess.start()
+                myProcess.join()
                 count = 0
                 while myQ.empty() and count < 50:
                     time.sleep(0.05)
@@ -168,6 +173,8 @@ def test(source, tests):
     newsource = get_source_template().replace("{% testclassname %}", testclassname)
     newsource = newsource.replace("{% source %}", source)
     newsource = newsource.replace("{% tests %}", tests)
+    
+    
     
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 
