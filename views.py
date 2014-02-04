@@ -40,7 +40,7 @@ class submissionView(object):
             strResult = """<img height="24" width="24" src="/static/""" + data[1] + """.png" alt=""" + data[1] + """>"""
             strResult += " " + data[0]
             myScore += data[2]
-            strResult += """ <a href='#' onclick="showDialog('""" + data[3].replace("\n","\\n").replace("'",'`').replace('"','`') + """');"> more info ...</a>"""
+            strResult += """ <a href='#' onclick="showDialog('""" + data[3].replace("\n","\\n").replace("'","&lsquo;").replace('"','&quot;') + """');"> more info ...</a>"""
                 
             strResult += "</BR>"
             resultset += strResult
