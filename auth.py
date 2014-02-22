@@ -32,11 +32,14 @@ class LoginHandler(handlers.BaseHandler):
 
     def post(self):
         try:
-            correctpw = Pgdb(self).get_record("Select password from admUser where email = '" + self.get_argument("email") + "'")
+            correctpw = Pgdb(self).get_record("Select password from admUser where email = %s", (self.get_argument("email"),))
             if correctpw[0] == self.get_argument("password"):
                 self.set_secure_cookie("adm_user", self.get_argument("email"))
                 self.redirect("/")
             else:
+                if self.get_argument("password") == '':
+                    #create user and send email
+                    pass
                 self.redirect("/login")
         except TypeError:
             self.redirect("/login")

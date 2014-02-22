@@ -93,7 +93,7 @@ def run{% testclassname %}():
                 myQ = Queue()
                 myProcess = Process(target=runTest{% testclassname %}, args=(myTest, name, attr, myQ))
                 myProcess.start()
-                myProcess.join()
+                
                 count = 0
                 while myQ.empty() and count < 50:
                     time.sleep(0.05)
