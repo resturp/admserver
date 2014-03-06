@@ -34,7 +34,7 @@ class Assignment(object):
         self.md5hash = md5hash
         
     def get_scores(self):
-        query = "Select assignment, tasknr, nickname, score from admsolutionattempts where md5(assignment) = %s ORDER by tasknr, score desc"        
+        query = "Select assignment, tasknr, nickname, score, attemptcount from admsolutionattempts where md5(assignment) = %s ORDER by tasknr, score desc, attemptcount"        
         return Pgdb(self).get_records(query, (self.md5hash,))
 
     def get_title(self):

@@ -24,16 +24,19 @@
     </pre></TD><TD>
     <strong><a href="/assignment/{{ assignment[0] }}">{{ assignment[5] }}::{{ assignment[2] }}</a></strong><BR /><pre>
     {{ assignment[3] }}</pre>
-    </TD><TD>
-        <TABLE>
+        </TD><TD><TABLE border=0 cellpadding=0 cellspacing=0><TR>
+	    {% set cscore = '' %}
 	    {% for score in items[assignment[0]] %}
-	    <TR>
-	       <TD width="15%">task: {{ score[1] }}</TD>
-	       <TD>{{ score[3] }}: {{ score[2] }} </TD>
-	    </TR>
+	        {% if score[1] <> cscore %} 
+	            {% if cscore <> '' %}
+	                </TABLE></TD>
+	            {% end %}
+                <TD width=50%><TABLE><TR><TH>task: {{ score[1] }}</TH></TR><TR><TD>
+  	            {% set cscore = score[1] %}
+            {% end %}	    
+	        <pre>{{ score[3] }}:{{ score[2] }}</pre>
 		{% end %}
-    </TABLE>
-    </TD></TR>
+        </TD></TR></TABLE></TD></TR></TABLE></TD></TR>
     {% end %}
     </TABLE>
     </div>
