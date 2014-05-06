@@ -28,3 +28,6 @@ pgdb_password = "<database password>"
 
 #the rip symbol is used to concatanate before a foreign key of a record, to make it disappear
 pgdb_ripsymbol = "#"
+
+#the cookie_secret secret
+cookie_secret = "ACOOKIESECRET"

@@ -174,7 +174,7 @@ def test(source, tests):
     newsource = newsource.replace("{% source %}", source)
     newsource = newsource.replace("{% tests %}", tests)
     
-    print newsource
+    #print newsource
     
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 
