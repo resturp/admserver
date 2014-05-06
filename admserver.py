@@ -27,10 +27,11 @@ import socket
 import tornado.ioloop
 import tornado.httpserver
 import os
+from config import *
 
 
 settings = {
-    "cookie_secret": "ADMSERVERRANDOMVALUEVALUE",
+    "cookie_secret": cookie_secret,
     "login_url": "/login",
     "xsrf_cookies": True,
 }
