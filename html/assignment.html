@@ -13,6 +13,7 @@
 		<li class="navbar"><a href="/admin" class="navbar">Admin</a></li>
 	    {% end %}
 		<li class="navbar"><a href="/profile" class="navbar">Profile: {{ items["name"] }}</a></li>
+		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
       </ul>
     
     <TABLE>
@@ -31,7 +32,7 @@
 	            {% if cscore <> '' %}
 	                </TABLE></TD>
 	            {% end %}
-                <TD width=50%><TABLE><TR><TH>task: {{ score[1] }}</TH></TR><TR><TD>
+                <TD width=10p><TABLE><TR><TH>task: {{ score[1] }}</TH></TR><TR><TD>
   	            {% set cscore = score[1] %}
             {% end %}	    
             <pre>{{ score[3] }}:{{ score[2][0:12] }}</pre>

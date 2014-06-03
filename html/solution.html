@@ -20,9 +20,10 @@
 		<li class="navbar"><a href="/admin" class="navbar">Admin</a></li>
 		{% end %}
 		<li class="navbar"><a href="/profile" class="navbar">Profile: {{ items["name"] }}</a></li>
+		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
 	</ul>
     <TABLE id="tableAssignment">
-	    <TR id="header"><TH width="10%">Daedline</TH><TH width="90%">Description ....</TH></TR>
+	    <TR id="header"><TH width="10%">Deadline</TH><TH width="90%">Description ....</TH></TR>
 	    <TR id="assignment" >
 	    	<TD>
 	    		{{ (items["assignment"][1] - datetime.datetime.now().date()).days }}<BR />Days left
