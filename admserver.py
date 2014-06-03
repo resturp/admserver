@@ -54,8 +54,8 @@ application = tornado.web.Application([
 ], **settings )
 
 http_server = tornado.httpserver.HTTPServer(application, ssl_options= {
-    "certfile": os.path.join("cert", "self.crt"),
-    "keyfile": os.path.join("cert", "self.key"),
+    "certfile": os.path.join(sslCertPath , "self.crt"),
+    "keyfile": os.path.join(sslCertPath, "self.key"),
 })
 
 

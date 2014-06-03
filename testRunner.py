@@ -90,6 +90,8 @@ def run{% testclassname %}():
         if not name[:1] == '_': 
             attr = getattr(myTest,name)
             if callable(attr):
+                import os
+                os.chdir(admRunPath)
                 myQ = Queue()
                 myProcess = Process(target=runTest{% testclassname %}, args=(myTest, name, attr, myQ))
                 myProcess.start()
