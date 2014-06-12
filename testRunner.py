@@ -24,6 +24,7 @@
 import string
 import random
 import traceback 
+from config import admRunPath
 
 def get_source_template():
     """ Return a string of the testrunner source template with placeholders.
@@ -180,7 +181,7 @@ def test(source, tests):
     
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 
-        ns = {}
+        ns = {'admRunPath': admRunPath}
         exec code_local in ns    
         noreturn = True   
         for result in  ns['run' + testclassname]():
