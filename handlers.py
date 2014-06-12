@@ -26,6 +26,7 @@ import models
 import views
 import hashlib
 import traceback
+from config import useSSL
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -45,6 +46,7 @@ class profileHandler(BaseHandler):
     def get(self):
         curuser = models.User(self)
         items = {}
+        items["useSSL"] = useSSL
         items["name"] = curuser.get_email()
         items["isadmin"] = curuser.is_admin()
         items["courses"] = curuser.get_courses()
@@ -78,6 +80,7 @@ class AssignmentHandler(BaseHandler):
         """
         curuser = models.User(self)
         items = {}
+        items["useSSL"] = useSSL
         items["name"] = curuser.get_email()
         items["last"] = ""
         items["assignments"] = curuser.get_assignments()
@@ -133,6 +136,7 @@ class EntryHandler(BaseHandler):
         """        
         curuser = models.User(self)
         items = {}
+        items["useSSL"] = useSSL
         items["name"] = curuser.get_email()
         items["assignment"] = curuser.get_assignment(md5hash)
         items["tasks"] = curuser.get_tasks(md5hash) 
@@ -156,6 +160,7 @@ class AdminHandler(BaseHandler):
             self.redirect("/logout")
         else:
             items = {}
+            items["useSSL"] = useSSL
             items["name"] = curuser.get_email()
             items["assignments"] = curuser.get_assignments()
             self.render('html/admin.html', title="ADM server", items=items)
@@ -201,6 +206,7 @@ class AdminEntryHandler(BaseHandler):
             self.redirect("/logout")
         else:
             items = {}
+            items["useSSL"] = useSSL
             items["name"] = curuser.get_email()
             items["assignment"] = curuser.get_assignment(md5hash)
             items["tasks"] = curuser.get_tasks(md5hash)        

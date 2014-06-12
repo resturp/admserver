@@ -23,10 +23,13 @@
 
 import handlers
 from pgdb import Pgdb
+from config import useSSL
 
 class LoginHandler(handlers.BaseHandler):
     def get(self):
-        self.render('html/login.html')
+        items = {}
+        items["useSSL"] = useSSL
+        self.render('html/login.html', title="ADM server", items=items)
         #loader = template.Loader('html')
         #self.write(loader.load('login.html').generate())
 

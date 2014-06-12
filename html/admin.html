@@ -7,11 +7,13 @@
   </head> 
 
   <body>
+      {% if items["useSSL"] %}
       <div id="StartSSL"><a href="http://www.startssl.com/"><img src="/static/startcom_secured_keys_80x15.png" border="0" alt="Free SSL Secured B"></a></div>
- 
+ 	  {% end %}
       <ul class="navbar"> 
 	    <li class="navbar"><a href="/assignment" class="navbar">Assignment</a></li>
 		<li class="navbar"><a href="/admin" class="navbar">Admin</a></li>
+		<li class="navbar"><a href="/profile" class="navbar">Profile</a></li>
 		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
       </ul>
     

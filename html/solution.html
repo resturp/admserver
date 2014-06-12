@@ -14,8 +14,9 @@
   </head> 
 
   <body onload="initPage();">
+    {% if items["useSSL"] %}
     <div id="StartSSL"><a href="http://www.startssl.com/"><img src="/static/startcom_secured_keys_80x15.png" border="0" alt="Free SSL Secured B"></a></div>
-  
+    {% end %}
 	<ul class="navbar"> 
 		<li class="navbar"><a href="/assignment" class="navbar active">Assignment</a></li>
 		{% if items["isadmin"] %}

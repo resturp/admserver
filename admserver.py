@@ -53,17 +53,27 @@ application = tornado.web.Application([
     
 ], **settings )
 
-http_server = tornado.httpserver.HTTPServer(application, ssl_options= {
-    "certfile": os.path.join(sslCertPath , "self.crt"),
-    "keyfile": os.path.join(sslCertPath, "self.key"),
-})
+if useSSL:
+    http_server = tornado.httpserver.HTTPServer(application, ssl_options= {
+        "certfile": os.path.join(sslCertPath , "self.crt"),
+        "keyfile": os.path.join(sslCertPath, "self.key"),
+    })
+else:
+    http_server = tornado.httpserver.HTTPServer(application)
+    
 
 
 if __name__ == "__main__":
     try:
-        http_server.listen(443)
+        if useSSL:
+            http_server.listen(443)
+            print "ADM server started on port 443"
+        else:
+            http_server.listen(80)
+            print "ADM server started on port 80"
     except socket.error as e:
         http_server.listen(8080)
-    
+        print "ADM server started on port 8080" 
+           
     tornado.ioloop.IOLoop.instance().start()
     

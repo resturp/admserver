@@ -31,3 +31,8 @@ pgdb_ripsymbol = "#"
 
 #the cookie_secret secret
 cookie_secret = "ACOOKIESECRET"
+
+#SSl certification settings
+useSSL = True
+sslCertPath = 'cert'
+admRunPath = '.'
