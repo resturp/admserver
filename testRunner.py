@@ -181,6 +181,7 @@ def test(source, tests):
     
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 
+        
         ns = {'admRunPath': admRunPath}
         exec code_local in ns    
         noreturn = True   
