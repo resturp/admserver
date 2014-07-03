@@ -6,7 +6,7 @@ import traceback
 
 
 def get_source_template():
-    with open('testRunTemplate.py') as f:
+    with open(testRunTemplate) as f:
         return f.read()
 
 def test(source, tests):
