@@ -5,6 +5,7 @@ import json
 import unittest
 from multiprocessing import Process, Queue
 from traceback import format_exc
+from config import admRunPath
 
 def runTest(myTest, name, attr, myQ):
     """ try to run the test and return the testresult.
@@ -30,8 +31,12 @@ class TestClass(unittest.TestCase):
     pass
 
 def run():
-    if not 'admRunPath' in vars():
-        admRunPath = '.'
+    #global admRunPath
+    #print vars()
+    #if not 'admRunPath' in vars():
+    #    admRunPath = '.'
+    #else:
+    #    print admRunPath
         
     myTest = TestClass('setUpClass')
     results = []
@@ -58,6 +63,7 @@ def run():
             if callable(attr):
                 import os
                 os.chdir(admRunPath)
+                print admRunPath
                 myQ = Queue()
                 myProcess = Process(target=runTest, args=(myTest, name, attr, myQ))
                 myProcess.start()
