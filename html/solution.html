@@ -47,7 +47,7 @@
     </ul>
 
     <TABLE id="myTable">
-	    <TR id="header"><TH width="10%">Attempt</TH><TH width="45%">Description</TH><TH width="45%">result</TH></TR>
+	    <TR id="header"><TH width="10%">Attempt</TH><TH width="60%">Description</TH><TH width="30%">Result</TH></TR>
 	    {% for task in items["tasks"] %}
 		    <TR id="task{{ task[1] }}">
 		    	<TD>
@@ -70,7 +70,7 @@
 					    {% else %}
 					        <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="{{task[8] - (task[7] or 0)}}">
 					    {% end  %}
-						<textarea class="lined" cols="120" rows="17" name="code">{% if (task[5] is None) %}{{ task[11] }}{% else %}{{ task[5] }}{% end %}</textarea><BR />
+						<textarea class="lined" cols="80" rows="17" name="code">{% if (task[5] is None) %}{{ task[11] }}{% else %}{{ task[5] }}{% end %}</textarea><BR />
 						{% raw xsrf_form_html() %}
 		    	</TD>
 		    	<TD>

@@ -46,8 +46,7 @@ class submissionView(object):
             resultset += strResult
             target.write(strResult)
             target.flush(False)
-
-            
+    
         if myTotal > 0:
             strResult =  """<img height="24" width="24" src="/static/score.png" alt="score"> Score:""" + str(myScore) + " out of " + str(myTotal) + " is " + str((myScore * 100) / myTotal) + "%"
             myTotal = (myScore * 100) / myTotal

@@ -7,10 +7,11 @@
      <script src="/static/apprise-v2.js"></script>
      <script src="/static/jquery-linedtextarea.js"></script>
      <link href="/static/jquery-linedtextarea.css" type="text/css" rel="stylesheet" />
+     <script src="/static/admserver.js"></script>
      <link href="/static/admserver.css" rel="Stylesheet" type="text/css">
   </head> 
 
-  <body>
+  <body onload="initPage();">
       {% if items["useSSL"] %}
       <div id="StartSSL"><a href="http://www.startssl.com/"><img src="/static/startcom_secured_keys_80x15.png" border="0" alt="Free SSL Secured B"></a></div>
       {% end %}
@@ -21,32 +22,58 @@
 		<li class="navbar"><a href="/logout" class="navbar">Logout: {{ items["name"] }}</a></li>
       </ul>
     
-    <TABLE>
-    <TR><TH width="10%">Daedline</TH><TH width="65%">Description</TH></TR>
+    <TABLE id="tableAssignment" width="100%">
+    <TR id="header"><TH width="10%">Daedline</TH><TH width="65%">Description</TH></TR>
     
-    <TR><TD>
+    <TR id="assignment"><TD>
     <pre>{{ (items["assignment"][1] - datetime.datetime.now().date()).days }}<BR />Days left</pre>
     </TD><TD>
     <strong><a href="/admin/{{ items["assignment"][0] }}">{{ items["assignment"][2] }}</a></strong><BR />
     <pre>{{ items["assignment"][3] }}</pre>
     </TD>
     </TR>
-
+    </TABLE>
+    
+    <ul id="listTasks" class="navbar tabs"> 
     {% for task in items["tasks"] %}
-    <TR><TD><a name="task{{ task[1] }}"></a><pre>Task {{ task[1] }}</pre></TD>
-    <TD>
-        <table><TR><TD> 
+	    <li class="navbar">
+	    <a class="navbar" id="task{{ task[1] }}" onClick="showTask('task{{ task[1] }}')">task{{ task[1] }}</a>
+	    </li>
+    {% end %}
+	<li class="navbar">
+	<a class="navbar" id="task{{ items['next'] }}" onClick="showTask('task{{ items['next'] }}')">* new task *</a>
+	</li>
+    
+    </ul>
 
-	    <form action="/admin/{{ items["assignment"][0] }}" method="post">
+    <TABLE id="myTable" width="100%">
+    <TR id="header"><TH width="10%">Attempts</TH><TH width="80%">Description</TH><TH width="10%">Command</TH></TR>
+    
+    {% for task in items["tasks"] %}
+    <TR id="task{{ task[1] }}">
+    <TD width="10%">
+    		    	<a name="task{{ task[1] }}"></a>
+		    		{% if task[8] == 0 %}
+			    		<pre>Unlimited</pre>
+		    		{% else %}  
+		    			<pre>Allowed: {{ task[8] }}
+		    			Left: <span id="attempts{{ task[1] }}">{{ task[8] }}</span></pre>
+		    		{% end %}
+    </TD>
+    <TD width="80%">
+         
+
+	    <form id="frmTask{{ task[1] }}" action="/admin/{{ items["assignment"][0] }}" method="post">
 		    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
 		    <input type="hidden" name="task" value="{{ task[1] }}">
+		    <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="inf">
 		    Attempts: <input type="number" name="attempts" value="{{ task[8] }}"><BR>
 		  	Description: <textarea class="lined" cols="80" rows="4" name="description">{{ task[2] }}</textarea><BR />
-			Template: <textarea class="lined" cols="100" rows="4" name="template">{{ task[11] }}</textarea><BR />
-			Testsuite: <textarea class="lined" cols="100" rows="17" name="tests">{{ task[3] }}</textarea><BR />
+			Template: <textarea class="lined" cols="80" rows="4" name="template">{{ task[11] }}</textarea><BR />
+			Testsuite: <textarea class="lined" cols="80" rows="17" name="tests">{{ task[3] }}</textarea><BR />
 			{% raw xsrf_form_html() %} 
         
-        </TD><TD>
+    </TD><TD width="10%">
             <br>
 			<input type="submit" value="Update task">   
 	    </form>        
@@ -57,49 +84,40 @@
 			{% raw xsrf_form_html() %} 
 		</form>
 
-        </TD></TR></table>
-  
-    </TD>
-    </TR>
+    </TD></TR>
     {% end %}
     
-    <TR><TD><a name="*new task*"></a><pre>*new task*</pre></TD>
-    <TD>
-	<table><TR><TD>
+    <TR id="task{{ items['next'] }}"><TD width="10%"><a name="*new task*"></a><pre>*new*</pre></TD>
+    <TD width="80%">
+	
 	    <form action="/admin/{{ items["assignment"][0] }}" method="post">
 		    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
 		    <input type="hidden" name="task" value="new">
 		    Attempts: <input type="number" name="attempts" value="0"><BR>
-		    Description: <textarea class="lined" cols="120" rows="4" name="description">Enter a clear description of the programming task</textarea><BR />
-		    Template: <textarea class="lined" cols="120" rows="4" name="template">Enter a template for a student solution.</textarea><BR />
-			Testsuite: <pre><textarea class="lined" cols="120" rows="17" name="tests">&quot;&quot;&quot; Methods that invoke the programmed exercise and assert some state.
-    All methods with trailing _ underscores will not be run autonomic 
+		    Description: <textarea class="lined" cols="80" rows="4" name="description">Enter a clear description of the programming task</textarea><BR />
+		    Template: <textarea class="lined" cols="80" rows="4" name="template">Enter a template for a student solution.</textarea><BR />
+			Testsuite: <pre><textarea class="lined" cols="80" rows="17" name="tests">&quot;&quot;&quot; TestCase with Methods that invoke the programmed exercise and assert some state.
+    All methods with leading _ underscores will not be run autonomic 
     during a test. Test methods are run in random order so isolate them 
     from each other.&quot;&quot;&quot;
 
-def _setUp(self):
-    &quot;&quot;&quot;Initialize the test environment here if you need to.
-    The -setUp method will be called before all tests. 
-    The total possible score and the initial score can 
-    be set here during setup.&quot;&quot;&quot;
-   
-    self.total = 50
-    self.score = 10
+class TestClass(unittest.TestCase):
+    def setUp(self):
+        self.total = 50
+        self.score = 10
 
-def testExample(self):
-    &quot;&quot;&quot;Feedback for failing&quot;&quot;&quot;
-    assert something() == "some value"
-    #increase the score after the assertion is met
-    self.score += 10
+    def testExample(self):
+        &quot;&quot;&quot;Feedback for failing&quot;&quot;&quot;
+        assert something() == "some value"
+        #increase the score after the assertion is met
+        self.score += 10
     
     </textarea></pre><BR />
 	{% raw xsrf_form_html() %}    
-	</TD><TD><BR />
+	</TD><TD width="10%"><BR />
 	<input type="submit" value="Create task">
     </form>    
-    </TD></TR></table></TD></TR>
-        
-
+    </TD></TR>
     </TABLE>
     </div>
     <script>

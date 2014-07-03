@@ -156,6 +156,7 @@ class User(object):
               
         for result, time in testRunner.test(code, tests):
             if isinstance(result, str):
+                
                 yield [result + '\n', time]
             else:
                 strResult = ''
@@ -181,8 +182,8 @@ class User(object):
             data = (title, task)
             query = "UPDATE admtask set description = %s, testsuite = %s, attempts = %s, template = %s where assignment = %s and tasknr = %s"
             data = (description,tests, attempts, template, title, task)
-            print query
-            print data
+            #print query
+            #print data
             return Pgdb(self).execute(query,data)
         
     def store_assignment(self,title,deadline,description, course, isnew):

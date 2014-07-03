@@ -210,6 +210,7 @@ class AdminEntryHandler(BaseHandler):
             items["name"] = curuser.get_email()
             items["assignment"] = curuser.get_assignment(md5hash)
             items["tasks"] = curuser.get_tasks(md5hash)        
+            items["next"] = len(items["tasks"]) + 1
             self.render('html/adminentry.html', title="ADM server", items=items)
 
     @tornado.web.authenticated        

@@ -27,8 +27,9 @@ import socket
 import tornado.ioloop
 import tornado.httpserver
 import os
-from config import *
 
+from config import *
+    
 
 settings = {
     "cookie_secret": cookie_secret,
