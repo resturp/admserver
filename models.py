@@ -34,7 +34,7 @@ class Assignment(object):
         self.md5hash = md5hash
         
     def get_scores(self):
-        query = "Select assignment, tasknr, nickname, score, attemptcount from admsolutionattempts where md5(assignment) = %s ORDER by tasknr, score desc, attemptcount"        
+        query = "Select assignment, tasknr, nickname, score, attemptcount, md5(email || ',' || assignment || ',' || tasknr) as usrhash from admsolutionattempts where md5(assignment) = %s ORDER by tasknr, score desc, attemptcount"        
         return Pgdb(self).get_records(query, (self.md5hash,))
 
     def get_title(self):
@@ -62,6 +62,28 @@ class User(object):
         self.assignment = None
         self.tasks = None
     
+    def _get_header(self, data):
+        head = "Python autograder submission \n" 
+        head += "by: %s at: %s \n"
+        head += "email: %s \n"
+        head += "for task: %s of assignment: %s \n"
+        head += "with score: %s \n"
+        head += "\n"
+        head += "Description:\n"
+        head += "%s\n\n\n"
+            
+        head = head % (data[9], data[4], data[3], data[1], data[0], data[7], data[2],)
+        return '# ' + head.replace('\n', '\n# ')[:-2] 
+
+    
+    def get_submission(self, md5hash):
+        query = """select sa.assignment, sa.tasknr, description, email, submissionstamp, code, testsuite, score, attemptcount, nickname 
+                   from admsolutionattempts as sa inner join admtask as t on 
+                        t.assignment = sa.assignment and t.tasknr = sa.tasknr
+                   where md5(sa.email || ',' || t.assignment || ',' || t.tasknr) = %s"""        
+        data = Pgdb(self).get_record(query, (md5hash,))
+        return data, self._get_header(data)
+
     def get_assignments(self):
         return self.assginments
     

@@ -37,8 +37,12 @@
 	            {% end %}
                 <TD width=10p><TABLE><TR><TH>task: {{ score[1] }}</TH></TR><TR><TD>
   	            {% set cscore = score[1] %}
-            {% end %}	    
-            <pre>{{ score[3] }}:{{ score[2][0:12] }}</pre>
+            {% end %}
+            {% if items["isadmin"] %}
+                <pre><a href='/download/{{ score[5] }}'>{{ score[3] }}:{{ score[2][0:12] }}</a></pre>
+            {% else %}
+                <pre>{{ score[3] }}:{{ score[2][0:12] }}</pre>
+            {% end %}
         {% end %}
         </TD></TR></TABLE></TD></TR></TABLE></TD></TR>
     {% end %}

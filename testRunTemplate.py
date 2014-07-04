@@ -63,7 +63,6 @@ def run():
             if callable(attr):
                 import os
                 os.chdir(admRunPath)
-                print admRunPath
                 myQ = Queue()
                 myProcess = Process(target=runTest, args=(myTest, name, attr, myQ))
                 myProcess.start()

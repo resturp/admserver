@@ -49,6 +49,7 @@ application = tornado.web.Application([
     (r"/deleteassignment", handlers.DeleteAssignmentHandler),
     (r"/admin", handlers.AdminHandler),
     (r"/admin/([^/]+)", handlers.AdminEntryHandler),
+    (r"/download/([^/]+)", handlers.DownloadHandler),
     (r"/deletetask", handlers.DeleteTaskHandler),
     
     

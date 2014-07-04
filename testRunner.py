@@ -9,6 +9,18 @@ def get_source_template():
     with open(testRunTemplate) as f:
         return f.read()
 
+def get_source(source, tests):
+    
+    newsource = get_source_template()
+    if 'class TestClass(unittest.TestCase):' in tests: 
+        newsource = newsource.replace('class TestClass(unittest.TestCase):\n# tests #\n    pass', tests)
+    else:
+        #provide 1 extra indent to create a test class
+        tests = "    " + tests.replace("\n","\n    ")
+        newsource = newsource.replace("# tests #\n    pass", tests)
+        
+    return newsource.replace("# source #", source)
+
 def test(source, tests):
     """ Test the source with the tests.
     
@@ -55,16 +67,7 @@ def test(source, tests):
     #create random name for the testsuite so we cannot outsmart the tests
     testclassname = ''.join(random.choice(string.ascii_uppercase) for x in range(12))
 
-    newsource = get_source_template()
-    if  'class TestClass(unittest.TestCase):' in tests: 
-        newsource = newsource.replace('class TestClass(unittest.TestCase):\n# tests #\n    pass', tests)
-    else:
-        #provide 1 extra indent to create a test class
-        tests = "    " + tests.replace("\n","\n    ")
-        newsource = newsource.replace("# tests #\n    pass", tests)
-        
-    newsource = newsource.replace("# source #", source)
-    
+    newsource = get_source(source, tests)    
     
     try: #add try  catch for incompilable code
         code_local = compile(newsource,'<string>','exec') 

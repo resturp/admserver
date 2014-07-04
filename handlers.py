@@ -26,6 +26,9 @@ import models
 import views
 import hashlib
 import traceback
+import testRunner
+import re
+
 from config import useSSL
 
 
@@ -65,6 +68,49 @@ class profileHandler(BaseHandler):
         e = curuser.store_profile()
         self.redirect("/")
 
+
+class DownloadHandler(BaseHandler):
+    """Handle GET requests to /download.
+    """
+    
+    @tornado.web.authenticated
+    def get(self, md5hash):
+        """Instantiate a current user instance of the User model and 
+        render a file for download.
+        
+        :precondition: The user is authenticated
+        :postcondition:  a rendered version of the submission.
+        
+        0 sa.assignment, 
+        1 sa.tasknr, 
+        2 description, 
+        3 email, 
+        4 submissionstamp, 
+        5 code, 
+        6 testsuite, 
+        7 score, 
+        8 attemptcount,
+        9 nickname 
+        """
+        curuser = models.User(self)
+        if curuser.is_admin():
+            
+            data, head = curuser.get_submission(md5hash)            
+            
+            file_name = re.sub('[.!,;?>< \t]', '_',  (data[9] + ' ' + data[0] + '_nr_' + str(data[1]) + '_' + str(data[4])[:10]).lower().strip()) + '.py'
+            self.set_header('Content-Type', 'application/octet-stream')
+            self.set_header('Content-Disposition', 'attachment; filename=' + file_name)
+            self.write(head)
+            self.write(data[5])
+            self.write("\n\n# testsuite:\nimport unittest\n\n")
+            if not 'class TestClass(unittest.TestCase):' in data[6]: 
+                self.write ('class TestClass(unittest.TestCase):\n')
+                self.write('    ' + data[6].replace('\n','\n    '))
+            else:
+                self.write(data[6])
+        
+        self.finish("")
+        
             
 class AssignmentHandler(BaseHandler):
     """Handle GET requests to /.
