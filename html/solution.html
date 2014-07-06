@@ -6,10 +6,13 @@
      <script src="/static/jquery.js"></script>
      <script src="/static/apprise-v2.js"></script>
      
-     <script src="/static/jquery-linedtextarea.js"></script>
-     <link href="/static/jquery-linedtextarea.css" rel="stylesheet" type="text/css" />
+     <script src="/static/codemirror/lib/codemirror.js"></script>
+     <script src="/static/codemirror/addon/edit/matchbrackets.js"></script>
+     <script src="/static/codemirror/python.js"></script>
 
      <script src="/static/admserver.js"></script>
+     
+     <link href="/static/codemirror/lib/codemirror.css" rel="stylesheet">
      <link href="/static/admserver.css" rel="Stylesheet" type="text/css" />
   </head> 
 
@@ -28,10 +31,13 @@
     <TABLE id="tableAssignment">
 	    <TR id="header"><TH width="10%">Deadline</TH><TH width="90%">Description ....</TH></TR>
 	    <TR id="assignment" >
-	    	<TD>
-	    		{{ (items["assignment"][1] - datetime.datetime.now().date()).days }}<BR />Days left
+	    	<TD class="visible">
+	    		<pre><script>
+	    		    var daysLeft = {{ (items["assignment"][1] - datetime.datetime.now().date()).days }};
+	    		    document.write(daysLeft);
+	    		</script> Days left</pre>
 	    	</TD>
-	    	<TD>
+	    	<TD class="visible">
 	    		<strong><a href="/assignment/{{ items["assignment"][0] }}">{{ items["assignment"][5] }}::{{ items["assignment"][2] }}</a></strong><BR />
 	    		{{ items["assignment"][3] }}
 	    	</TD>
@@ -50,7 +56,7 @@
 	    <TR id="header"><TH width="10%">Attempt</TH><TH width="60%">Description</TH><TH width="30%">Result</TH></TR>
 	    {% for task in items["tasks"] %}
 		    <TR id="task{{ task[1] }}">
-		    	<TD>
+		    	<TD class="visible">
 		    		<a name="task{{ task[1] }}"></a>
 		    		{% if task[8] == 0 %}
 			    		<pre>Unlimited</pre>
@@ -59,8 +65,8 @@
 		    			Left: <span id="attempts{{ task[1] }}">{{ task[8] - (task[7] or 0) }}</span></pre>
 		    		{% end %}
 		    	</TD>
-		    	<TD>
-		    		<pre>{{ task[2] }}</pre><BR />
+		    	<TD class="visible">
+		    		<pre>{{ task[2] }}</pre>
 		    		<form id="frmTask{{ task[1] }}" action="" method="post">
 		    			<input type="hidden" name="md5hash" value="{{ items["assignment"][0] }}">
 					    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
@@ -70,12 +76,23 @@
 					    {% else %}
 					        <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="{{task[8] - (task[7] or 0)}}">
 					    {% end  %}
-						<textarea class="lined" cols="80" rows="17" name="code">{% if (task[5] is None) %}{{ task[11] }}{% else %}{{ task[5] }}{% end %}</textarea><BR />
+						<textarea id="code{{ task[1] }}" cols="80" rows="17" name="code">{% if (task[5] is None) %}{{ task[11] }}{% else %}{{ task[5] }}{% end %}</textarea>
+					    <script>
+      						var editor{{ task[1] }} = CodeMirror.fromTextArea(document.getElementById("code{{ task[1] }}"), {
+  				      			mode: {name: "python",
+             			  		version: 2,
+           			    		singleLineStringErrors: false},
+  				      			lineNumbers: true,
+        						indentUnit: 4,
+      				  			matchBrackets: true
+    						});
+   						</script>
+						
 						{% raw xsrf_form_html() %}
 		    	</TD>
-		    	<TD>
+		    	<TD class="visible">
 						
-						<button type="button" name="submit" onclick="processSubmission('{{ task[1] }}')">Submit task</button><BR /> <BR />   
+					<button type="button" name="submit" onclick="processSubmission('{{ task[1] }}')">Submit task</button><BR /> <BR />   
 		    		</form> 				
 
 		    		<span id="Response{{ task[1] }}">{% raw task[6] %}</span>
@@ -83,13 +100,6 @@
 		    </TR>
 	    {% end %}
     </TABLE>
-    </div>
-    <script>
-	    $(function() {
-            $(".lined").linedtextarea( {selectedLine: 1});
-    	});
-    </script>
-    
-    
+    </div>   
   </body>
 </html>

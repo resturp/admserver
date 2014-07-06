@@ -21,8 +21,8 @@
    limitations under the License.
 """
 import psycopg2
+import os
 from config import *
-
 
 
 class Pgdb(object):

@@ -38,9 +38,13 @@ function showTask(taskName) {
                 
                 if (document.getElementById("task"+i+"attempts").value != 'inf'){
                 	if (parseInt(document.getElementById("task"+i+"attempts").value) < 1) {
-                		$(":input").attr('disabled', true);
-                	}
+                		$(":input").attr('disabled', true);	
+                	}                	
                 } 
+            	if (daysLeft < 0) {
+            		$(":input").attr('disabled', true);
+            	}
+
                 
             } else {
             	row.style.display = 'none';
@@ -56,14 +60,13 @@ function processSubmission(task) {
 	var http = new XMLHttpRequest();
 	var url = "/assignment";
 	var params = "";
+
 	
 	$("#task" + task + " input").each( function() {
 		params += this.name + "=" + encodeURIComponent(this.value) + "&"
 	})
-	$("#task" + task + " textarea").each( function() {
-		params += this.name + "=" + encodeURIComponent(this.value)
-	})
-	
+	params += 'code=' + encodeURIComponent(eval('editor' + task).getValue());
+		
 	document.getElementById("Response" + task).innerHTML = "Processing .....\n\n";
 	
 	http.open("POST", url, true);

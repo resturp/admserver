@@ -1,14 +1,13 @@
 import random
 import string
 from config import *
+from utils import readTemplate
 import traceback
  
 
-
 def get_source_template():
-    with open(testRunTemplate) as f:
-        return f.read()
-
+    return readTemplate("testRunTemplate.py")
+ 
 def get_source(source, tests):
     
     newsource = get_source_template()

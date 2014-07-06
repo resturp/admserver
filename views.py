@@ -24,13 +24,14 @@ import json
 
 class submissionView(object):
     
-    def getView(self, target, curuser, assignment):
+    def getView(self, target, curuser, admin, assignment):
         resultset = ''
         myScore = 0
         myTotal = 0
         
+        print target.get_argument("code", "", False)
         
-        for result, time in curuser.run_solution(target.get_argument("assignment","",True),target.get_argument("task","",True),target.get_argument("code", "", False)):
+        for result, time in admin.run_solution(target.get_argument("assignment","",True),target.get_argument("task","",True),target.get_argument("code", "", False)):
                 
             data = json.loads( result.split("<test>")[1])
             if data[1] == "setup":

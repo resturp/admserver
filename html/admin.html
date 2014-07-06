@@ -18,47 +18,70 @@
       </ul>
     
     <TABLE>
-    <TR><TH width="10%">Daedline</TH><TH width="45%">Description</TH><TH width="45%">&nbsp</TH></TR>
+    <TR><TH width="10%">Daedline</TH><TH width="40%">Description</TH><TH width="50%">Users</TH></TR>
+    <TR><TD class="visible" colspan=2>
     {% for assignment in items["assignments"] %}
-    <TR><TD>
+    <TABLE frame="box"><TR><TD width=20%>
     <pre>{{ (assignment[1] - datetime.datetime.now().date()).days }}<BR />Days left
-    </pre></TD><TD>
+    </pre></TD><TD width=78%>
     <form action="/admin" method="post">
     <input type="hidden" name="assignment" value="{{ assignment[2] }}">
     <input type="hidden" name="isnew" value="False">
     <input type="date" name="deadline" value="{{ assignment[1] }}"><BR />
     <input type="text" name="title" value="{{ assignment[2] }}" readOnly="true"><BR />
     <input type="text" name="course" value="{{ assignment[5] }}"><BR />
-	<textarea class="lined" cols="120" rows="4" name="description">{{ assignment[3] }}</textarea><BR />
-    <input type="submit" value="Update assignment">
-	{% raw xsrf_form_html() %}    
-    </form>    
-    </TD><TD>Manage tasks: <a href="/admin/{{ assignment[0] }}">{{ assignment[2] }}</a><BR />
-    <form action="/deleteassignment" method="post">
-    <input type="hidden" name="assignment" value="{{ assignment[2] }}">
-    <input type="submit" value="Delete Assignment">
-	{% raw xsrf_form_html() %} 
-	</form>
-    </TD></TR>
-    {% end %}
+	<textarea class="lined" cols="100" rows="4" name="description">{{ assignment[3] }}</textarea><BR />
 
-    <TR><TD>
+	<table><TR>
+	<TD align=left ><input type="submit" value="Update"> {% raw xsrf_form_html() %} </form></TD>
+    <TD align=center ><form action="/deleteassignment" method="post">
+    <input type="hidden" name="assignment" value="{{ assignment[2] }}">
+    <input type="submit" value="Delete">
+	{% raw xsrf_form_html() %} 
+	</form></TD>
+	<TD><form action="/admin/{{ assignment[0] }}" method="get">
+	                      <input type="submit" value="Manage tasks">
+	                      {% raw xsrf_form_html() %} </form>
+	</TD>
+	</TR></table>
+
+    </TD><TD width=2%></TD></TR></TABLE>
+    {% end %}
+    <TABLE frame="box"><TR><TD width=20%>
     <pre>*new assignment*
-    </pre></TD><TD>
+    </pre></TD><TD width=78%>
     <form action="/admin" method="post">
     <input type="hidden" name="assignment" value="new">
     <input type="hidden" name="isnew" value="True">
     <input type="date" name="deadline" value="yyyy-mm-dd"><BR />
     <input type="text" name="title" value="short descriptive title"><BR />
     <input type="text" name="course" value="first"><BR />
-    <textarea class="lined" cols="120" rows="4" name="description">Detailed introduction of the assignment</textarea><BR />
+    <textarea class="lined" cols="100" rows="4" name="description">Detailed introduction of the assignment</textarea><BR />
     <input type="submit" value="Create assignment">
 	{% raw xsrf_form_html() %}    
     </form>    
-    </TD><TD>&nbsp</TD></TR>
+    </TD><TD width=2%></TD></TR>
+    </TABLE></TD>
+    <TD class="visible">
+        <form action="/adduser" method="post">
+		<table>
+		    <tr><TD width=10%>E-mail:</TD><TD width=90%><input type="text" name="email"></TD></tr>
+		    <tr><TD width=10%>Password:</TD><TD width=90%><input type="password" name="password" value="welcome"></TD></tr>
+		    <tr><TD width=10%>Courses:</TD><TD width=90%><input type="text" name="courses" value="first"></TD></tr>
+		    <tr><TD width=10%>Nickname:</TD><TD width=90%><input type="text" name="nickname" value="Ada Lovelace"></TD></tr>
+		    <tr><TD width=10%></TD><TD width=90%><input type="submit" value="Add user"></TD></tr>
 
-
-
+		</table>
+	    {% raw xsrf_form_html() %}
+        </form>
+        <HR>
+        <table>
+	    {% for user in items["users"] %}
+	    	<tr><td>{{ user[0] }}</td><td>{{ user[1] }}</td><td>{{ user[2] }}</td></tr>
+	    {% end %}
+        </table>
+    </TD>
+    </TR>
     </TABLE>
     </div>
     <script>

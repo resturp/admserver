@@ -25,11 +25,11 @@ import tornado.web
 import models
 import views
 import hashlib
-import traceback
-import testRunner
 import re
+import utils
 
 from config import useSSL
+
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -44,7 +44,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.get_secure_cookie("adm_user")
 
         
-class profileHandler(BaseHandler):
+class ProfileHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         curuser = models.User(self)
@@ -64,8 +64,29 @@ class profileHandler(BaseHandler):
         curuser = models.User(self)
         curuser.set_courses( self.get_argument("courses", "first", True) )
         curuser.set_nickname( self.get_argument("nickname", "Ada Lovelace", True) )
-        curuser.set_password( self.get_argument("password", "admin" , False) )
         e = curuser.store_profile()
+        self.redirect("/")
+
+class PasswordHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        curuser = models.User(self)
+        items = {}
+        items["useSSL"] = useSSL
+        items["name"] = curuser.get_email()
+        items["isadmin"] = curuser.is_admin()
+        items["courses"] = curuser.get_courses()
+        items["nickname"] = curuser.get_nickname()
+        items["password"] = curuser.get_password()
+        
+        self.render('html/changePassword.html', title="ADM server", items=items)
+    
+
+    @tornado.web.authenticated
+    def post(self):
+        curuser = models.User(self)
+        curuser.set_password( self.get_argument("password", "admin" , False) )
+        e = curuser.store_password()
         self.redirect("/")
 
 
@@ -93,9 +114,10 @@ class DownloadHandler(BaseHandler):
         9 nickname 
         """
         curuser = models.User(self)
+        admin = models.Admin(self)
         if curuser.is_admin():
             
-            data, head = curuser.get_submission(md5hash)            
+            data, head = admin.get_submission(md5hash)            
             
             file_name = re.sub('[.!,;?>< \t]', '_',  (data[9] + ' ' + data[0] + '_nr_' + str(data[1]) + '_' + str(data[4])[:10]).lower().strip()) + '.py'
             self.set_header('Content-Type', 'application/octet-stream')
@@ -105,11 +127,43 @@ class DownloadHandler(BaseHandler):
             self.write("\n\n# testsuite:\nimport unittest\n\n")
             if not 'class TestClass(unittest.TestCase):' in data[6]: 
                 self.write ('class TestClass(unittest.TestCase):\n')
-                self.write('    ' + data[6].replace('\n','\n    '))
+                self.write('    ' + data[6].replace('\n','\n    ').replace("def _setUp(self):","def setUp(self):"))
             else:
                 self.write(data[6])
+            self.write('\nif __name__ == "__main__":\n    unittest.main()')
         
         self.finish("")
+
+class BackupHandler(BaseHandler):
+    """Handle GET requests to /download.
+    """
+    
+    @tornado.web.authenticated
+    def get(self, courseName, includeSubmissions=False):
+        """Instantiate a current user instance of the User model and 
+        backup the course and provide user with a download of the backup.
+        
+        :precondition: The user is authenticated
+        :postcondition:  a download of a backup.
+        
+        0 sa.assignment, 
+        1 sa.tasknr, 
+        2 description, 
+        3 email, 
+        4 submissionstamp, 
+        5 code, 
+        6 testsuite, 
+        7 score, 
+        8 attemptcount,
+        9 nickname 
+        """
+        curuser = models.User(self)
+        if curuser.is_admin():
+            
+            course = models.Course(courseName)
+            file_name = course.backup()
+            
+
         
             
 class AssignmentHandler(BaseHandler):
@@ -146,10 +200,13 @@ class AssignmentHandler(BaseHandler):
                          success or failure of the submission
         """
         curuser = models.User(self)
+        admin = models.Admin(self)
         assignment = models.Assignment(self.get_argument("md5hash","",True))
         thisview = views.submissionView()
+        print self.get_argument("code","",True)
+        
         if curuser.can_attempt(self.get_argument("assignment","",True), self.get_argument("task","",True)):
-            resultset, score = thisview.getView(self,curuser, assignment)            
+            resultset, score = thisview.getView(self, curuser, admin, assignment)            
             
             e = curuser.store_solution(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("code", "", False),resultset, score)
             if isinstance(e,Exception):
@@ -157,7 +214,9 @@ class AssignmentHandler(BaseHandler):
             self.flush(True)  
         else:
             self.write("""You have found a way to post a submission 
-            after submitting the maximum number of times. 
+            after submitting the maximum number of times
+            or after the deadline has passed.
+             
             This submission will not be accepted.
             This incident will be reported.""")
             self.flush(True)
@@ -181,10 +240,11 @@ class EntryHandler(BaseHandler):
         :postcondition:  a rendered version of the html/solution.html page.
         """        
         curuser = models.User(self)
+        admin = models.Admin(self)
         items = {}
         items["useSSL"] = useSSL
         items["name"] = curuser.get_email()
-        items["assignment"] = curuser.get_assignment(md5hash)
+        items["assignment"] = admin.get_assignment(md5hash)
         items["tasks"] = curuser.get_tasks(md5hash) 
         items["isadmin"] = curuser.is_admin()               
         self.render('html/solution.html', title="ADM server", items=items)
@@ -202,6 +262,7 @@ class AdminHandler(BaseHandler):
         :postcondition:  a rendered version of the html/admin.html page if the user is admin.
         """
         curuser = models.User(self)
+        admin = models.Admin(self)
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
@@ -209,6 +270,7 @@ class AdminHandler(BaseHandler):
             items["useSSL"] = useSSL
             items["name"] = curuser.get_email()
             items["assignments"] = curuser.get_assignments()
+            items["users"] = admin.get_users()
             self.render('html/admin.html', title="ADM server", items=items)
 
     @tornado.web.authenticated        
@@ -223,10 +285,11 @@ class AdminHandler(BaseHandler):
         :todo:  redirect to the assignment page at the specific task? 
         """
         curuser = models.User(self)
+        admin = models.Admin(self)
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
-            e = curuser.store_assignment(self.get_argument("title","",True),self.get_argument("deadline","",True),self.get_argument("description", "", False), self.get_argument("course","",True), self.get_argument("isnew","",True).lower() == "true" )
+            e = admin.store_assignment(self.get_argument("title","",True),self.get_argument("deadline","",True),self.get_argument("description", "", False), self.get_argument("course","",True), self.get_argument("isnew","",True).lower() == "true" )
             if isinstance(e,Exception):
                 self.write("<pre>Error storing assignment\n" + str(e) + "</pre>")
                 self.flush(True)
@@ -248,15 +311,18 @@ class AdminEntryHandler(BaseHandler):
         :postcondition:  a rendered version of the html/adminentry.html page if the user is admin.
         """
         curuser = models.User(self)
+        admin = models.Admin(self)
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
             items = {}
             items["useSSL"] = useSSL
             items["name"] = curuser.get_email()
-            items["assignment"] = curuser.get_assignment(md5hash)
+            items["assignment"] = admin.get_assignment(md5hash)
             items["tasks"] = curuser.get_tasks(md5hash)        
             items["next"] = len(items["tasks"]) + 1
+            items["testTemplate"] = utils.readTemplate("testTemplate.py")
+            
             self.render('html/adminentry.html', title="ADM server", items=items)
 
     @tornado.web.authenticated        
@@ -270,11 +336,12 @@ class AdminEntryHandler(BaseHandler):
         :done:  redirect to the assignment page at the specific task? 
         """
         curuser = models.User(self)
+        admin = models.Admin(self)
         if not curuser.is_admin():
             self.redirect("/logout")
         else:
             
-            e = curuser.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False), self.get_argument("attempts", "", False), self.get_argument("template", "", False) )
+            e = admin.store_tests(self.get_argument("assignment","",True),self.get_argument("task","",True),self.get_argument("description", "", False), self.get_argument("tests", "", False), self.get_argument("attempts", "", False), self.get_argument("template", "", False) )
             if isinstance(e,Exception):
                 self.write("<pre>Error storing test\n" + e + "</pre>")
                 self.flush(True)

@@ -44,23 +44,59 @@ ul.navbar li.navbar a:hover {
 
 table {
 	width: 100%;
+	padding : 0px;
+	border-spacing : 0px;
+}
+
+table.invisible {
+	padding : 0px;
+	border-spacing : 0px;
+	border : 0px;
+}
+
+td {
+	border-width: 0px;
+	border-spacing : 0px;
+	border-style: none;
+	border-color: black;
+	text-align: left;
+	vertical-align: top;
+}
+
+td.visible {
+	border-width: 1px;
+	border-spacing : 0px;
+	border-style: dotted;
+	border-color: black;
+	text-align: left;
+	vertical-align: top;
+}
+
+td.invisible {
+	padding : 0px;
+	border-spacing : 0px;
+	border : 0px;
 }
 
 th {
 	border-width: 1px;
+	border-spacing : 0px;
 	border-style: dotted;
 	border-color: black;
 	text-align: left;
 	vertical-align: top;
 }
 
-td {
-	border-width: 1px;
-	border-style: dotted;
-	border-color: black;
-	text-align: left;
-	vertical-align: top;
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
 }
+
+.CodeMirror-scroll {
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+
 
 textarea {
 	width: 100%;

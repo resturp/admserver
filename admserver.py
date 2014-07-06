@@ -21,16 +21,22 @@
    limitations under the License.
 """
 
-import handlers
-import auth
 import socket
 import tornado.ioloop
 import tornado.httpserver
 import os
 
-from config import *
-    
+try:
+    from config import *
+except ImportError:
+    print "config file missing or corrupt:"
+    print "copy and edit config file from 'misc' folder to the root folder."    
+    quit()
 
+import auth
+import handlers
+
+    
 settings = {
     "cookie_secret": cookie_secret,
     "login_url": "/login",
@@ -42,7 +48,8 @@ application = tornado.web.Application([
     (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": "static"}),
     (r"/login", auth.LoginHandler),
     (r"/logout", auth.LogoutHandler),
-    (r"/profile", handlers.profileHandler),    
+    (r"/profile", handlers.ProfileHandler),    
+    (r"/password", handlers.PasswordHandler),    
     (r"/", handlers.AssignmentHandler),
     (r"/assignment", handlers.AssignmentHandler),
     (r"/assignment/([^/]+)", handlers.EntryHandler),
@@ -50,6 +57,7 @@ application = tornado.web.Application([
     (r"/admin", handlers.AdminHandler),
     (r"/admin/([^/]+)", handlers.AdminEntryHandler),
     (r"/download/([^/]+)", handlers.DownloadHandler),
+    (r"/adduser", auth.AddUserHandler),    
     (r"/deletetask", handlers.DeleteTaskHandler),
     
     
@@ -74,8 +82,12 @@ if __name__ == "__main__":
             http_server.listen(80)
             print "ADM server started on port 80"
     except socket.error as e:
-        http_server.listen(8080)
-        print "ADM server started on port 8080" 
+        try:
+            http_server.listen(8080)
+            print "ADM server started on port 8080" 
+        except socket.error:
+            print "A server is running on port 8080"
+            quit()
            
     tornado.ioloop.IOLoop.instance().start()
     

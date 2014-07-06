@@ -28,16 +28,18 @@
     <TABLE id="tableProfile">
 	    <TR id="header"><TH width="10%">Image</TH><TH width="90%">Profile.</TH></TR>
 	    <TR id="profile" >
-	    	<TD>
-	    		
+	    	<TD class="visible">
+	    		Your image here...
 	    	</TD>
-	    	<TD>
+	    	<TD class="visible">
 			    <form action="/profile" method="post">
-				    courses : <input type="text" name="courses" value="{{ items["courses"] }}"><BR />
-				    nickname: <input type="text" name="nickname" value="{{ items["nickname"] }}"><BR />
-				    password: <input type="password" name="password" value="{{ items["password"] }}"><BR />
-				    <input type="submit" value="Update profile">
-					{% raw xsrf_form_html() %}    
+			        <table>
+			        <tr><td width=10%>courses:</td><td><input type="text" name="courses" value="{{ items["courses"] }}"></td></tr>
+			        <tr><td width=10%>nickname:</td><td><input type="text" name="nickname" value="{{ items["nickname"] }}"></td></tr>
+			        <tr><td width=10%></td><td><input type="submit" value="Update profile"></td></tr>
+				    </table>
+					{% raw xsrf_form_html() %}
+					    
 			    </form>    
 	    	</TD>
 	    </TR>

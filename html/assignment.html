@@ -23,19 +23,19 @@
     <TR><TH width="10%">Daedline</TH><TH width="45%">Description</TH><TH width="45%">Leaderboard</TH></TR>
     
     {% for assignment in items["assignments"] %}
-    <TR><TD><pre>
+    <TR><TD class="visible"><pre>
     {{ (assignment[1] - datetime.datetime.now().date()).days }}<BR />Days left
-    </pre></TD><TD>
+    </pre></TD><TD class="visible">
     <strong><a href="/assignment/{{ assignment[0] }}">{{ assignment[5] }}::{{ assignment[2] }}</a></strong><BR /><pre>
     {{ assignment[3] }}</pre>
-        </TD><TD><TABLE border=0 cellpadding=0 cellspacing=0><TR>
+        </TD><TD class="visible"><TABLE border=0 cellpadding=0 cellspacing=0><TR>
 	    {% set cscore = '' %}
 	    {% for score in items[assignment[0]] %}
 	        {% if score[1] <> cscore %} 
 	            {% if cscore <> '' %}
 	                </TABLE></TD>
 	            {% end %}
-                <TD width=10p><TABLE><TR><TH>task: {{ score[1] }}</TH></TR><TR><TD>
+                <TD width=10p><TABLE><TR><TD><strong>task: {{ score[1] }}</strong></TD></TR><TR><TD>
   	            {% set cscore = score[1] %}
             {% end %}
             {% if items["isadmin"] %}

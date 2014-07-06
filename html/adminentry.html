@@ -5,9 +5,13 @@
      <title>ADM solution submission server</title>
      <script src="/static/jquery.js"></script>
      <script src="/static/apprise-v2.js"></script>
-     <script src="/static/jquery-linedtextarea.js"></script>
-     <link href="/static/jquery-linedtextarea.css" type="text/css" rel="stylesheet" />
+     
+     <script src="/static/codemirror/lib/codemirror.js"></script>
+     <script src="/static/codemirror/addon/edit/matchbrackets.js"></script>
+     <script src="/static/codemirror/python.js"></script>
+     
      <script src="/static/admserver.js"></script>
+     <link href="/static/codemirror/lib/codemirror.css" rel="stylesheet">
      <link href="/static/admserver.css" rel="Stylesheet" type="text/css">
   </head> 
 
@@ -25,9 +29,13 @@
     <TABLE id="tableAssignment" width="100%">
     <TR id="header"><TH width="10%">Daedline</TH><TH width="65%">Description</TH></TR>
     
-    <TR id="assignment"><TD>
-    <pre>{{ (items["assignment"][1] - datetime.datetime.now().date()).days }}<BR />Days left</pre>
-    </TD><TD>
+    <TR id="assignment"><TD class="visible">
+    <pre><script>
+	    var daysLeft = {{ (items["assignment"][1] - datetime.datetime.now().date()).days }};
+	    document.write(daysLeft);
+	    daysLeft = 1;
+	</script> Days left</pre>
+    </TD><TD class="visibe">
     <strong><a href="/admin/{{ items["assignment"][0] }}">{{ items["assignment"][2] }}</a></strong><BR />
     <pre>{{ items["assignment"][3] }}</pre>
     </TD>
@@ -46,12 +54,12 @@
     
     </ul>
 
-    <TABLE id="myTable" width="100%">
+    <TABLE id="myTable" width="100%" frame="box">
     <TR id="header"><TH width="10%">Attempts</TH><TH width="80%">Description</TH><TH width="10%">Command</TH></TR>
     
     {% for task in items["tasks"] %}
     <TR id="task{{ task[1] }}">
-    <TD width="10%">
+    <TD width="10%" class="visible">
     		    	<a name="task{{ task[1] }}"></a>
 		    		{% if task[8] == 0 %}
 			    		<pre>Unlimited</pre>
@@ -68,15 +76,48 @@
 		    <input type="hidden" name="task" value="{{ task[1] }}">
 		    <input id="task{{ task[1] }}attempts" type="hidden" name="attempts" value="inf">
 		    Attempts: <input type="number" name="attempts" value="{{ task[8] }}"><BR>
-		  	Description: <textarea class="lined" cols="80" rows="4" name="description">{{ task[2] }}</textarea><BR />
-			Template: <textarea class="lined" cols="80" rows="4" name="template">{{ task[11] }}</textarea><BR />
-			Testsuite: <textarea class="lined" cols="80" rows="17" name="tests">{{ task[3] }}</textarea><BR />
+		    
+			Description:
+	    	<textarea id="desc{{ task[1] }}" cols="80" rows="4" name="description">{{ task[2] }}</textarea>
+		    <script>
+		        var editor = CodeMirror.fromTextArea(document.getElementById("desc{{ task[1] }}"), {
+  					lineNumbers: false
+				});
+			</script>
+				
+		   	Template:
+		    <textarea id="code{{ task[1]}}" cols="80" rows="4" name="template">{{ task[11] }}</textarea>
+		    <script>
+      			var editor = CodeMirror.fromTextArea(document.getElementById("code{{ task[1] }}"), {
+        			mode: {name: "python",
+               		version: 2,
+               		singleLineStringErrors: false},
+        			lineNumbers: true,
+        			indentUnit: 4,
+        			height: 10,
+        			matchBrackets: true
+    			});
+   			</script>
+    			
+			Testcase:
+			<textarea id="tests{{ task[1] }}" class="lined" cols="80" rows="17" name="tests">{{ task[3] }}</textarea>		    
+		    <script>
+      			var editor = CodeMirror.fromTextArea(document.getElementById("tests{{ task[1] }}"), {
+        			mode: {name: "python",
+               		version: 2,
+               		singleLineStringErrors: false},
+        			lineNumbers: true,
+        			indentUnit: 4,
+        			matchBrackets: true
+    			});
+    		</script>
+
 			{% raw xsrf_form_html() %} 
         
-    </TD><TD width="10%">
-            <br>
-			<input type="submit" value="Update task">   
-	    </form>        
+    </TD><TD width="10%" class="visible">  
+		<input type="submit" value="Update task">   
+	    </form>
+	    <HR>        
 	    <form action="/deletetask" method="post">
 		    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
 		    <input type="hidden" name="task" value="{{ task[1] }}">
@@ -87,43 +128,60 @@
     </TD></TR>
     {% end %}
     
-    <TR id="task{{ items['next'] }}"><TD width="10%"><a name="*new task*"></a><pre>*new*</pre></TD>
-    <TD width="80%">
+    <TR id="task{{ items['next'] }}">
+    <TD width="10%" class="visible"><a name="*new task*"></a><pre>*new*</pre></TD>
+    <TD width="80%" class ="visible">
 	
 	    <form action="/admin/{{ items["assignment"][0] }}" method="post">
 		    <input type="hidden" name="assignment" value="{{ items["assignment"][2] }}">
 		    <input type="hidden" name="task" value="new">
 		    Attempts: <input type="number" name="attempts" value="0"><BR>
-		    Description: <textarea class="lined" cols="80" rows="4" name="description">Enter a clear description of the programming task</textarea><BR />
-		    Template: <textarea class="lined" cols="80" rows="4" name="template">Enter a template for a student solution.</textarea><BR />
-			Testsuite: <pre><textarea class="lined" cols="80" rows="17" name="tests">&quot;&quot;&quot; TestCase with Methods that invoke the programmed exercise and assert some state.
-    All methods with leading _ underscores will not be run autonomic 
-    during a test. Test methods are run in random order so isolate them 
-    from each other.&quot;&quot;&quot;
 
-class TestClass(unittest.TestCase):
-    def setUp(self):
-        self.total = 50
-        self.score = 10
+		    
+			Description:
+	    	<textarea id="desc0" cols="80" rows="4" name="description">Enter a clear description of the programming task
+	    	</textarea>
+		    <script>
+		        var editor = CodeMirror.fromTextArea(document.getElementById("desc0"), {
+  					lineNumbers: false
+				});
+			</script>
+				
+		   	Template:
+		    <textarea id="code0" cols="80" rows="4" name="template">Enter a template for a student solution.
+		    </textarea>
+		    <script>
+      			var editor = CodeMirror.fromTextArea(document.getElementById("code0"), {
+        			mode: {name: "python",
+               		version: 2,
+               		singleLineStringErrors: false},
+        			lineNumbers: true,
+        			indentUnit: 4,
+        			height: 10,
+        			matchBrackets: true
+    			});
+   			</script>
+    			
+			Testcase:
+			<textarea id="tests0" class="lined" cols="80" rows="17" name="tests">{{ items["testTemplate"] }}</textarea>		    
+		    <script>
+      			var editor = CodeMirror.fromTextArea(document.getElementById("tests0"), {
+        			mode: {name: "python",
+               		version: 2,
+               		singleLineStringErrors: false},
+        			lineNumbers: true,
+        			indentUnit: 4,
+        			matchBrackets: true
+    			});
+    		</script>
 
-    def testExample(self):
-        &quot;&quot;&quot;Feedback for failing&quot;&quot;&quot;
-        assert something() == "some value"
-        #increase the score after the assertion is met
-        self.score += 10
-    
-    </textarea></pre><BR />
-	{% raw xsrf_form_html() %}    
-	</TD><TD width="10%"><BR />
+			{% raw xsrf_form_html() %} 
+
+	</TD><TD width="10%" class="visible">
 	<input type="submit" value="Create task">
     </form>    
     </TD></TR>
     </TABLE>
     </div>
-    <script>
-	    $(function() {
-            $(".lined").linedtextarea( {selectedLine: 1});
-        });
-    </script>
   </body>
 </html>

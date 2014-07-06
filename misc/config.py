@@ -21,18 +21,28 @@
    limitations under the License.
 """
 
-pgdb_server = "localhost"
-pgdb_database = "admserver"
-pgdb_user = "<database username>"
-pgdb_password = "<database password>"
+#database settings
+pgdb_server = "<server-name>"
+pgdb_database = "<database-name>"
+pgdb_user = "<user to connect>"
+pgdb_password = "<database user password>"
 
 #the rip symbol is used to concatanate before a foreign key of a record, to make it disappear
 pgdb_ripsymbol = "#"
 
 #the cookie_secret secret
-cookie_secret = "ACOOKIESECRET"
+cookie_secret = "ADMSERVERRANDOMVALUEVALUESECRET"
 
 #SSl certification settings
 useSSL = True
-sslCertPath = 'cert'
-admRunPath = '.'
+sslCertPath = '</absolute/path/to/server/cert/folder/containing/.crt/and/.key/files/>'
+
+#directory to make current when running submissions
+#The user that runs the service needs write permissions in this folder
+#To handle tests with FileIO
+admRunPath = '</absolute/path/to/run/submissions/from>'
+
+#template directory
+templateDir = '</absolute/path/to/template/directory>'
+
+

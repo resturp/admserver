@@ -22,6 +22,9 @@
 """
 
 import handlers
+import models
+import utils
+import tornado.web
 from pgdb import Pgdb
 from config import useSSL
 
@@ -34,16 +37,22 @@ class LoginHandler(handlers.BaseHandler):
         #self.write(loader.load('login.html').generate())
 
     def post(self):
+        trash = "\t\n(!*(!&^!%$!%!#$%@$%!^!^%@GGFVGFVGFC786857576vfhgvgh"
         try:
-            correctpw = Pgdb(self).get_record("Select password from admUser where email = %s", (self.get_argument("email"),))
-            if correctpw[0] == self.get_argument("password"):
+            correctpw = Pgdb(self).get_record("Select password from admUser where email = %s", (self.get_argument("email",trash),))
+            md5hash = Pgdb(self).get_record("select md5(%s) as md5hash", (self.get_argument("password",trash),))
+            if correctpw[0] == md5hash[0]:
                 self.set_secure_cookie("adm_user", self.get_argument("email"))
                 self.redirect("/")
             else:
-                if self.get_argument("password") == '':
-                    #create user and send email
-                    pass
-                self.redirect("/login")
+                if not utils.couldBeHash(self.get_argument("password",trash)):
+                    if correctpw[0] == self.get_argument("password",trash):
+                        self.set_secure_cookie("adm_user", self.get_argument("email"))
+                        self.redirect("/password")
+                    else:    
+                        self.redirect("/login")
+                else:
+                    self.redirect("/login")
         except TypeError:
             self.redirect("/login")
   
@@ -53,3 +62,20 @@ class LogoutHandler(handlers.BaseHandler):
         self.clear_cookie("adm_user")
         self.redirect("/login")
    
+class AddUserHandler(handlers.BaseHandler):
+    
+    @tornado.web.authenticated
+    def post(self):
+        curuser = models.User(self)
+        if curuser.is_admin():
+            
+            isactive = Pgdb(self).get_record("select count(email) from admuser where email = %s", (self.get_argument("email"),))
+            if isactive[0] == 0:
+                query = "Insert into admuser (email,password,isadmin,courses,nickname) values (%s,%s,%s,%s,%s)"
+                data = (self.get_argument("email"), self.get_argument("password"), False ,self.get_argument("courses"), self.get_argument("nickname"),)
+                #print data
+                Pgdb(self).execute(query, data)
+            else:
+                print "user " + self.get_argument("email") + " already in database"
+            self.redirect("/admin")
+        
